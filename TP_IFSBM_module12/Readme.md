@@ -8,4 +8,4 @@ Here you will find the material for your practical session.
 - Copy paste the content of TP_notebookR.Rmd in your new R Notebook
 - Follow the notebook instructions
 
-# Enjoye
+*Enjoye!*
