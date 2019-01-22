@@ -123,6 +123,8 @@ Tis function returns a list called ```TCGAdata``` where each request is stored u
 
 ```{r}
 names(TCGAdata)
+#write.csv2(TCGAdata$EXP,"C:/Users/L_VERLINGUE/Desktop/Presentation/IFSBM/2019/EXPlung_gbm.csv")
+#write.csv2(TCGAdata$CLINIC,"C:/Users/L_VERLINGUE/Desktop/Presentation/IFSBM/2019/Cliniclung_gbm.csv")
 
 ```
 
@@ -488,16 +490,17 @@ print(Surv(TCGAdata$CLINIC$OS_MONTHS, TCGAdata$CLINIC$OS_STATUS))
 ```
 
 # Non parametric probability of survival
+
+The ```survfit()``` function of the survival package compute the cumulativee probability of survival that takes into acount censored data in the calculation.
+
 ```{r}
-# proba cumulée de survie : 
-# proba conditionelle : on prend en compte les censurés, et on calcule la proba a chaque evenement.
-# proba cumulée: produit des probas conditionelles 
 survival <- survfit(Surv(TCGAdata$CLINIC$OS_MONTHS, TCGAdata$CLINIC$OS_STATUS)~NULL)
 summary(survival)
 
 ```
 
-The cumulative probability of survival allow you to plot the Kaplan-Meier curve.
+The cumulative probability of survival allow you to plot the Kaplan-Meier curve, which is a classical way to visualize the distribution of the survival data accross the cohort.
+
 ```{r}
 # plot survival data
 plot(survfit(Surv(time = TCGAdata$CLINIC$OS_MONTHS, event = TCGAdata$CLINIC$OS_STATUS)~NULL),mark.time = T, 
@@ -505,17 +508,16 @@ plot(survfit(Surv(time = TCGAdata$CLINIC$OS_MONTHS, event = TCGAdata$CLINIC$OS_S
      ylab="Probability of survival", xlab="Time in months")
 ```
 
-# A parametric model survival: the Cox model
+# A semi-parametric model survival: the Cox model
+
+Previously your task was to classify the histologies from expression data. Your new task is to predict survival of patients, still from the expression of data.
+Modeling survival data is a long standing discipline. With the emergence of molecular analysis it has become a big challenge worldwide. As you will see in this exemple it is much more complicated than histology classification.
+Modeling survival looks like a regression task because you have numeric data to predict.
+However the way to perform your regression is adapted to the presence of censored data.
+The Cox model is using each variable (here gene expression) to model survival data (look at the slides).
 
 ```{r}
 ## COX ###
-
-## effet d'une ou plusieurs variables sur la survie
-## fonction de risque en fonctions des differentes covariables
-## rapport des risques permet de calculer une variable independante du temps
-# le rapport de risque (HR) est ####exp(coef)####
-# c'est l'augmentation du risque à chaque mois (1 unité) supplémentaire
-# Pr(>|z|) correspond à la p value
 
 # split
 TrainSplit=0.8
@@ -533,7 +535,8 @@ Preds<-predict(Coxfit,as.matrix(TCGAdata$EXP[Train,]),type = "response")
 
 
 Evaluate the efficacy of your predictions with survival data.
-Concordance index is a classical metric. 1 or 0 are perfect concordances and 0.5 is random.
+Concordance index is a classical metric (look at the slides). 1 or 0 are perfect concordances and 0.5 is random.
+
 ```{r}
 # check how well your learning has performed on the training set
 Conc<-survConcordance(Surv(TCGAdata$CLINIC$OS_MONTHS[Train],TCGAdata$CLINIC$OS_STATUS[Train])~Preds)
@@ -553,7 +556,7 @@ print(Conc$concordance)
 
 ```
 
-The concordance in the training and test sets are relatively close (to confirm) but are both low.
+The concordance in the training and test sets are both relatively low.
 
 ## Quizz bonus
 What could be the reasons of poor concordance even on the training set?
