@@ -134,6 +134,14 @@ names(TCGAdata)
 
 ```
 
+*rescue only, else skip*
+EXP<-read.csv2("https://raw.githubusercontent.com/DITEP/IFSBM-bigdata/master/TP_IFSBM_module12/Rescue/EXPlung_gbm.csv", row.names = 1)
+CLINIC<-read.csv2("https://raw.githubusercontent.com/DITEP/IFSBM-bigdata/master/TP_IFSBM_module12/Rescue/Cliniclung_gbm.csv", row.names = 1)
+TCGAdata<-list()
+TCGAdata["EXP"]<-EXP
+TCGAdata["CLINIC"]<-CLINIC
+*end rescue only*
+
 It is of good practice to check the dimension of your data. The dimensions are in the form [N rows, N columns].
 
 ```{r}
