@@ -14,12 +14,12 @@ The problem can be summarized this way: your input is a huge amount of variables
 
 The global concept is a reduction of information for human understanding: a central objective in many machine learning projects.
 
-This is actually one of the current main challenges of personalized medecine, so I'll hope you'll enjoye this Notebook and that it can help you to adress your current and/or future challenges.
+This is actually one of the current main challenges of personalized medecine, so I'll hope you'll enjoye this Notebook and that it can help you to adress your current and/or future research challenges.
 
 ## Main steps
 I'll guide you trhough the aquisition of TCGA data. We will need to reduce the queries to most relevant genes otherwise your computer won't be able to handle the job. 
 
-Then I'll will explain to you a simple modeling strategy for classification, that works very well. Finally, if we have time, I'll introduce to you survival analysis and provide you a glimpse on the limits of such analysis. 
+Then I'll will explain to you a simple modeling strategy for classification, that works very well. Finally, if we have time, I'll introduce to you survival analysis and provide you a glimpse on the difficulties and challenges of such analysis. 
 
 It is where the current science stands! To go further you'll have to become a researcher in bioinformatics and machine learning. 
 
@@ -35,12 +35,20 @@ Finally you will have a partial code to complete at the end of the notebook, and
 
 ---
 # Get familiar with R Notebook
+
+### Execute code
+
 ```{r}
  #Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Enter*. 
-print("Welcome at Cancer et génomique : Big Data et modèles prédictifs")
+print("Welcome to 'Big Data et modèles prédictifs' practical session")
 set.seed(1234)
 
 ```
+
+### Edit your Notebook
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
 
 # Load your material
 
@@ -89,7 +97,7 @@ library(survival)
 
 ```
 
-# Use LoadcBioportal()
+# Use LoadcBioportal() function
 
 Your first step is to use the LoadcBioportal() function to load the TCGA data.
 A R function is composed of several arguments that you may change depending on your task.
@@ -123,8 +131,6 @@ Tis function returns a list called ```TCGAdata``` where each request is stored u
 
 ```{r}
 names(TCGAdata)
-#write.csv2(TCGAdata$EXP,"C:/Users/L_VERLINGUE/Desktop/Presentation/IFSBM/2019/EXPlung_gbm.csv")
-#write.csv2(TCGAdata$CLINIC,"C:/Users/L_VERLINGUE/Desktop/Presentation/IFSBM/2019/Cliniclung_gbm.csv")
 
 ```
 
@@ -136,6 +142,8 @@ It is of good practice to check the dimension of your data. The dimensions are i
 lapply(TCGAdata,dim)
 
 ```
+See you didn't load mutation data because of the argument ```MutNeeded = F``` so the dimensions of the ```TCGAdata$MUT``` is [0,0].
+The function has selected and sorted the patients so that you have a ```TCGAdata$EXP``` and ```TCGAdata$CLINIC```with the same patients as rows and no NAs.
 
 ---
 # Description of the data
@@ -156,11 +164,11 @@ legend("topright",legend=c("luad","gbm"), fill=2:3, cex=0.8)
 
 ### Quizz
 
-What is TPM? 
+1) What is TPM? 
 
 your answer here: 
 
-What is the distribution of your RNAseq data?
+2) What is the distribution of your RNAseq data?
 
 your answer here: 
 
@@ -181,7 +189,7 @@ legend("bottomright",legend=c("luad","gbm"), pch=16, cex=0.8, col=2:3)
 
 ### Quizz
 
-Imagine the red and green dots are very far away from each others and clustered togethers, what would be the name of this problem? 
+3) Imagine the red and green dots are very far away from each others and each colors cluster togethers. What would be the name of this problem? 
 
 your answer here: 
 
@@ -199,12 +207,13 @@ Can you identify the organ of origin from the gene expressions?
 TrainSplit=0.8
 Train<-sample(seq(nrow(TCGAdata$CLINIC)),size = round(nrow(TCGAdata$CLINIC)*TrainSplit) )
 Val<-seq(nrow(TCGAdata$CLINIC))[!seq(nrow(TCGAdata$CLINIC))%in%Train]
-paste("Your training and validation cohorts have dimensions:",length(Train),",", length(Val))
+paste("Your training and validation cohorts have",length(Train),"&", length(Val), "patients")
 
 ```
 
 ### Quizz
-Why did we split the cohort?
+
+4) Why did we split the cohort?
 
 your answer here: 
 
@@ -219,7 +228,8 @@ LRfit<-glmnet(as.matrix(TCGAdata$EXP[Train,]),as.factor(TCGAdata$CLINIC$study[Tr
 ```
 
 ### Quizz
-On which cohort is it best to evaluate the prediction of your model?
+
+5) On which cohort is it best to evaluate the prediction of your model?
 
 your answer here: 
 
@@ -232,11 +242,12 @@ table(Preds,TCGAdata$CLINIC$study[Val])
 ```
 
 ### Quizz
-What is the name of such matrix representing true values and predictied values?
+
+6) What is the name of such matrix representing true values and predictied values?
 
 your answer here: 
 
-What is the [accuracy](https://en.wikipedia.org/wiki/Confusion_matrix) of your current predictions (help in the hyperlink)?
+7) What is the [accuracy](https://en.wikipedia.org/wiki/Confusion_matrix) of your current predictions (help in the hyperlink)?
 
 your answer here: 
 
@@ -258,16 +269,17 @@ as.matrix(coefficients(LRfit))[head(order(abs(coefficients(LRfit)),decreasing = 
 ```
 
 ### Quizz
-Can you say these best 20 gene expressions can determine the tumor type as good as 251?
+
+8) Can you say these best 20 gene expressions can determine the tumor type as good as 251?
 
 your answer here: 
 
 # Are there better ways to do so?
 
-Say you want to have a limited list of important genes in your model. It is more or less a regularization (or penalization) procedure: you penalize your model by keeping a limited number of genes.
+Say you want to have a limited list of important genes in your model. It can be useful if a biotech wants to devellop a gene signature to determine the tissue of origin of a cancer sample, for example. It is more or less a regularization (or penalization) procedure: you penalize your model by keeping a limited number of genes.
 
 An existing procedure is Lasso (or L1N) regularization, that increases your cost during training.
-Look at the slides for explanations.
+*Look at the slides for explanations*
 
 Lasso (like other regularization procedures) comes with an additional parameter to optimize, here $\lambda$. The recommended way to find $\lambda$ is with k-fold cross validation strategy.
 
@@ -281,7 +293,8 @@ print(paste("You best value of lambda is :", LRcv$lambda.min))
 ```
 
 ### Quizz
-Do you think this model needs important regularization to generalize well, and why (max 2 reasons)?
+
+9) Do you think this model needs important regularization to generalize well, and why (max 2 reasons)?
 
 your answer here: 
 
@@ -299,7 +312,8 @@ table(Preds,TCGAdata$CLINIC$study[Val])
 ```
 
 ### Quizz
-Has Lasso regularization changed the accuracy of your model?
+
+10) Has Lasso regularization changed the accuracy of your model?
 
 your answer here: 
 
@@ -314,7 +328,8 @@ GoodCOEF[order(abs(GoodCOEF[,1]),decreasing = T),,drop=F]
 ```
 
 ### Quizz
-If you go to see a clinician and tell him about your new model, do you think he will want to use it?
+
+11) If you go to see a clinician and tell him about your new model, do you think he will want to use it?
 
 your answer here: 
 
@@ -425,24 +440,22 @@ paste("The selected", nrow(GoodCOEF), "genes are:")
 GoodCOEF[order(abs(GoodCOEF[,1]),decreasing = T),,drop=F]
 ```
 
-Congratulation, you have built a classifier that works reasonably well on a clinically difficult task. Nevertheless there are still some work to do before submitting this model to EMA or FDA for approval and commercialisation... To suggest some perspectives, answer to the following questions:
+Congratulations, you have built a classifier that works reasonably well on a clinically difficult task. Nevertheless there are still some work to do before submitting this model to EMA or FDA for approval and commercialisation... To suggest some perspectives, answer to the following questions:
 
 ## Questions:
 
-Do you think your model needs improvment or it is the best shot ever? 
+12) Do you think your model needs improvment or it is the best shot ever? 
 
-What could be the reasons of some errors of your classifier?
+13) What could be the reasons of some errors of your classifier?
 
-What would you suggest if you want to further improve your model?
+14) What strategies would you suggest to further improve your model?
 
 
-# Edit your Notebook
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+## Edit your Notebook
+You can now edit your notebook to see you results in a nice interface.
 
 ---
 # A glimpse into survival analysis
-*Under work*
 
 The function LoadcBioportal() also loads the survival data from TCGA patients when available. 
 Look at the slides to learn what is a survival data.
@@ -461,7 +474,8 @@ TCGAdata$CLINIC$OS_STATUS<-ifelse(TCGAdata$CLINIC$OS_STATUS=="LIVING",0,1)
 ```
 
 ### Quizz
-What is the ```TCGAdata$CLINIC$OS_STATUS``` refering to?
+
+15) What is the ```TCGAdata$CLINIC$OS_STATUS``` refering to?
 
 your answer here: 
 
@@ -483,6 +497,8 @@ lapply(TCGAdata,dim)
 ```
 
 Get familiar with the R representation of survival data.
+*look at the slides*
+
 ```{r}
 # look at survival data 
 print(Surv(TCGAdata$CLINIC$OS_MONTHS, TCGAdata$CLINIC$OS_STATUS))
@@ -491,7 +507,12 @@ print(Surv(TCGAdata$CLINIC$OS_MONTHS, TCGAdata$CLINIC$OS_STATUS))
 
 # Non parametric probability of survival
 
-The ```survfit()``` function of the survival package compute the cumulativee probability of survival that takes into acount censored data in the calculation.
+The ```survfit()``` function of the survival package compute the cumulative probability of survival that takes into acount censored data in the calculation.
+
+At each time step $l$, the cumulative probability $P_{l}$ is calculated by:
+
+$P_{l} = P_{l-1} \cdot \left( \frac{ NatRisk_{l}- Ndeath_{l} }{ NatRisk_{l}} \right)$
+
 
 ```{r}
 survival <- survfit(Surv(TCGAdata$CLINIC$OS_MONTHS, TCGAdata$CLINIC$OS_STATUS)~NULL)
@@ -510,11 +531,14 @@ plot(survfit(Surv(time = TCGAdata$CLINIC$OS_MONTHS, event = TCGAdata$CLINIC$OS_S
 
 # A semi-parametric model survival: the Cox model
 
-Previously your task was to classify the histologies from expression data. Your new task is to predict survival of patients, still from the expression of data.
-Modeling survival data is a long standing discipline. With the emergence of molecular analysis it has become a big challenge worldwide. As you will see in this exemple it is much more complicated than histology classification.
+Previously your task was to classify the histologies from expression data. Your new task is to predict survival of patients, still from the gene expression.
+
+Modeling survival data for various parameters is a historical discipline (the Cox model has been published in 1952). With the emergence of molecular analysis of cancers it has become a big challenge worldwide. As you will see in this exemple it is much more complicated than histology classification.
+
 Modeling survival looks like a regression task because you have numeric data to predict.
 However the way to perform your regression is adapted to the presence of censored data.
 The Cox model is using each variable (here gene expression) to model survival data (look at the slides).
+*look at the slides*
 
 ```{r}
 ## COX ###
@@ -536,6 +560,7 @@ Preds<-predict(Coxfit,as.matrix(TCGAdata$EXP[Train,]),type = "response")
 
 Evaluate the efficacy of your predictions with survival data.
 Concordance index is a classical metric (look at the slides). 1 or 0 are perfect concordances and 0.5 is random.
+*look at the slides*
 
 ```{r}
 # check how well your learning has performed on the training set
@@ -559,6 +584,17 @@ print(Conc$concordance)
 The concordance in the training and test sets are both relatively low.
 
 ## Quizz bonus
-What could be the reasons of poor concordance even on the training set?
+
+16) What could be the reasons of poor concordance even on the training set?
 
 your answer here:
+
+# End
+
+In this workshop you have learned 2 classical machine learning approaches: classification and regression. We have addressed the challenge of modeling high dimension data (gene expression) to predict clinically relevant observations.
+
+I hope you have gained experience on the good practices in machine learning and the main residing challenges. Maybe these scripts can be usefull for your current or futur research, don't hesitate to use it.
+
+If you want to push foward the adventure, please contact me: loic.verlingue@gustaveroussy.fr . You can also visit our github github.com/DITEP to see what we are working on in our Data Science team.
+
+Thank you!
