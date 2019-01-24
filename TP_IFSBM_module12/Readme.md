@@ -1,6 +1,6 @@
 # Welcome to module 12 : "big data & predictive models" IFSBM 2019
 
-The slides of the lecture can be found at (ModelsBigData.pdf)[https://github.com/gustaveroussy/IFSBM-bigdata/blob/master/TP_IFSBM_module12/ModelsBigData.pdf] 
+The slides of the lecture can be found at [ModelsBigData.pdf](https://github.com/gustaveroussy/IFSBM-bigdata/blob/master/TP_IFSBM_module12/ModelsBigData.pdf) 
 
 The slides of the practical session can be found at (TPbioinfoLV.pdf)https://github.com/gustaveroussy/IFSBM-bigdata/blob/master/TP_IFSBM_module12/TPbioinfoLV.pdf] 
 
