@@ -4,6 +4,29 @@ author: "Loic Verlingue"
 date: "13 janvier 2020"
 output: html_document
 ---
+# What you will do in this R Notebook
+
+## Introduction
+This is the second day of your training in R for Machine Learning. You will now enter the wide, wild and exciting field of Deep Learning!
+
+Neural Networks and Deep Learning have revolutionized the performance of many Machine Learning task: in image analysis, gaming and natural langage understanding, fro example.
+
+Again your input is a huge amount of variables (genes expression per patients) and you want to provide the clinician a simple output that he can use for his patients.
+
+I hope you'll enjoye this Notebook and that it can help you to adress your current and/or future challenges.
+
+## Main steps
+After loading TCGA data, we will build and train a simple neural network.
+
+## In practice
+The code is provided to you. You will just have to follow the instructions all along the Notebook.
+I'll give you a little bit of explanation when needed. 
+
+Pay attention: there will be some questions to answer in this notebook.
+
+Finally you will have a partial code to complete at the end of the notebook, and give it back to us.
+
+*--> lets' go!*
 
 ## Functions
 ```{r}
@@ -15,8 +38,9 @@ set.seed(1234)
 #source("https://raw.githubusercontent.com/DITEP/TPBigDataIFSBM/master/LoadcBioportal150119.R")
 source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/LoadcBioportal150119.R")
 # install cgdsr
-install.packages("cgdsr")
-install.packages("reshape2")
+devtools::install_github("rstudio/keras")
+library(keras)
+install_keras()
 library(reshape2)
 ```
 
@@ -121,5 +145,3 @@ class_pred[1:20]
 ```{r}
 as.factor(TCGAdata$CLINIC$study[Train])[1]
 ```
-
-
