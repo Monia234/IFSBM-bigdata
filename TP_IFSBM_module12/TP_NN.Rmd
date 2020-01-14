@@ -46,6 +46,15 @@ library(reshape2)
 
 
 ## Data
+
+Select the genes you want to use.
+```{r}
+urlfile<-"https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/CancerGeneCensusCOSMIC.csv"
+CGS<-read.csv(urlfile,stringsAsFactors = F)
+GENES<-CGS$Gene.Symbol[CGS$Hallmark=="Yes"]
+print(paste("You have selected",length(GENES),"important cancer genes like:", paste(sample(GENES,20), collapse = ", "), "..."))
+```
+
 ```{r}
 
 TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|gbm", 
