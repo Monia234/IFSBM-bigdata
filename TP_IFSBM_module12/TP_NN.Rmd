@@ -38,6 +38,8 @@ set.seed(1234)
 #source("https://raw.githubusercontent.com/DITEP/TPBigDataIFSBM/master/LoadcBioportal150119.R")
 source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/LoadcBioportal150119.R")
 # install cgdsr
+install.packages("devtools")
+# download https://www.anaconda.com/distribution/#download-section
 devtools::install_github("rstudio/keras")
 library(keras)
 install_keras()
