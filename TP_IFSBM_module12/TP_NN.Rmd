@@ -38,11 +38,13 @@ set.seed(1234)
 #source("https://raw.githubusercontent.com/DITEP/TPBigDataIFSBM/master/LoadcBioportal150119.R")
 source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/LoadcBioportal150119.R")
 # install cgdsr
+install.packages("cgdsr")
 install.packages("devtools")
 # download https://www.anaconda.com/distribution/#download-section
 devtools::install_github("rstudio/keras")
 library(keras)
 install_keras()
+# help for R keras at https://keras.rstudio.com/
 library(reshape2)
 ```
 
@@ -58,24 +60,29 @@ print(paste("You have selected",length(GENES),"important cancer genes like:", pa
 ```
 
 ```{r}
-
 TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|gbm", 
                          ClinicNeeded = T, MutNeeded = F, 
                          RNANeeded = T, NormalizeRNA = T, 
                          FunctionalAnnot = F, PDF = F, Tests=T)
-
 STUDY<-TCGAdata$STUDY
 print("Here are your patients' numbers:")
 print(table(TCGAdata$CLINIC$study))
-
 ```
+
+```{r}
+dim(TCGAdata$EXP)
+```
+```{r}
+TCGAdata$CLINIC$study_num<-as.numeric(as.factor(TCGAdata$CLINIC$study))-1
+```
+
 
 ## Split the data
 ```{r}
 TrainSplit=0.8
 Train<-sample(seq(nrow(TCGAdata$CLINIC)),size = round(nrow(TCGAdata$CLINIC)*TrainSplit) )
 Val<-seq(nrow(TCGAdata$CLINIC))[!seq(nrow(TCGAdata$CLINIC))%in%Train]
-paste("Your training and validation cohorts have dimensions:",length(Train),",", length(Val))
+paste("Your training and validation cohorts have ",length(Train),"&", length(Val), "patients.")
 ```
 
 ## Model building
@@ -87,9 +94,9 @@ Most of deep learning consists of chaining together simple layers. Most layers, 
 ```{r}
 model <- keras_model_sequential()
 model %>%
-  layer_flatten(input_shape = c(28, 28)) %>%
+  layer_flatten(input_shape = c(250)) %>%
   layer_dense(units = 128, activation = 'relu') %>%
-  layer_dense(units = 10, activation = 'softmax')
+  layer_dense(units = 1, activation = 'sigmoid')
 ```
 
 ### Compile the model
@@ -101,7 +108,7 @@ Metrics —Used to monitor the training and testing steps. The following example
 ```{r}
 model %>% compile(
   optimizer = 'adam', 
-  loss = 'sparse_categorical_crossentropy',
+  loss = 'mean_squared_error',
   metrics = c('accuracy')
 )
 ```
@@ -116,7 +123,7 @@ We ask the model to make predictions about a test set — in this example, the t
 To start training, call the fit method — the model is “fit” to the training data:
 
 ```{r}
-model %>% fit(as.matrix(TCGAdata$EXP[Train,]),as.factor(TCGAdata$CLINIC$study[Train]), epochs = 5)
+model %>% fit(as.matrix(TCGAdata$EXP[Train,]),TCGAdata$CLINIC$study_num[Train], epochs = 100)
 ```
 
 As the model trains, the loss and accuracy metrics are displayed. This model reaches an accuracy of about XX on the training data.
@@ -124,8 +131,7 @@ As the model trains, the loss and accuracy metrics are displayed. This model rea
 ## Evaluate accuracy
 Next, compare how the model performs on the test dataset:
 ```{r}
-score <- model %>% evaluate(as.matrix(TCGAdata$EXP[Val,]), as.factor(TCGAdata$CLINIC$study[Train]))
-
+score <- model %>% evaluate(as.matrix(TCGAdata$EXP[Val,]), TCGAdata$CLINIC$study_num[Val])
 cat('Test loss:', score$loss, "\n")
 cat('Test accuracy:', score$acc, "\n")
 ```
