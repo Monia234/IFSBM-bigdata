@@ -60,7 +60,7 @@ print(paste("You have selected",length(GENES),"important cancer genes like:", pa
 ```
 
 ```{r}
-TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|gbm", 
+TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|lusc", 
                          ClinicNeeded = T, MutNeeded = F, 
                          RNANeeded = T, NormalizeRNA = T, 
                          FunctionalAnnot = F, PDF = F, Tests=T)
@@ -98,6 +98,12 @@ model %>%
   layer_dense(units = 128, activation = 'relu') %>%
   layer_dense(units = 1, activation = 'sigmoid')
 ```
+
+### print your model architecture
+```{r}
+model
+```
+
 
 ### Compile the model
 Before the model is ready for training, it needs a few more settings. These are added during the model’s compile step:
@@ -156,5 +162,5 @@ class_pred <- model %>% predict_classes(as.matrix(TCGAdata$EXP[Val,]))
 ```
 
 ```{r}
-cbind(class_pred,TCGAdata$CLINIC$study[Val])
+table(class_pred,TCGAdata$CLINIC$study[Val])
 ```
