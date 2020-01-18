@@ -69,6 +69,9 @@ Dowload TCGA data from the LoadcBioportal that you know.
 ```{r}
 # load TCGA data of lung adenocarcinoma and lung squamous cell carcinoma
 
+#### YOUR CODE HERE ####
+# set the argument Organ 
+
 TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|lusc", 
                          ClinicNeeded = T, MutNeeded = F, 
                          RNANeeded = T, NormalizeRNA = T, 
