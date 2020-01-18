@@ -9,7 +9,7 @@ output: html_document
 ## Introduction
 This is the second day of your training in R for Machine Learning. You will now enter the wide, wild and exciting field of Deep Learning!
 
-Neural Networks and Deep Learning have revolutionized the performance of many Machine Learning task: in image analysis, gaming and natural langage understanding, fro example.
+Neural Networks and Deep Learning have revolutionized the performance of many Machine Learning tasks: in image analysis, gaming and natural langage understanding, for example.
 
 Again your input is a huge amount of variables (genes expression per patients) and you want to provide the clinician a simple output that he can use for his patients.
 
@@ -29,10 +29,6 @@ Finally you will have a partial code to complete at the end of the notebook, and
 *--> lets' go!*
 
 ## Functions
-```{r}
-library(keras)
-set.seed(1234)
-```
 
 ```{r}
 #source("https://raw.githubusercontent.com/DITEP/TPBigDataIFSBM/master/LoadcBioportal150119.R")
@@ -40,17 +36,27 @@ source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_
 # install cgdsr
 install.packages("cgdsr")
 install.packages("devtools")
-# download https://www.anaconda.com/distribution/#download-section
+library(reshape2)
+set.seed(1234)
+```
+
+### Keras
+Keras is a library of functions specifically dedicated to the building, training and testing of a wide range of neural networks. The math is pre-computed, and functions are relatively user-friendly: is a high level API. It can use several lower level back-ends for the math and calculation. We use the default one: Tensorflow. Tensorflow is a way to perform computations with high dimensional data, using computational graphs
+Keras and Tensorflow have been develloped by Google and are open source.
+To use both with R (gold standard is to use it with python), it is recommended you install [anaconda](https://www.anaconda.com/distribution/#download-section). Anaconda is a python/R based environment architecture that will provide almost all what you need to run Tensorflow and Keras.
+
+Dowload Anaconda may take some time. *Look at the slides!* (computational graphs and neural nets)
+
+Then, load and install Keras.
+```{r}
 devtools::install_github("rstudio/keras")
 library(keras)
 install_keras()
 # help for R keras at https://keras.rstudio.com/
-library(reshape2)
 ```
 
 
 ## Data
-
 Select the genes you want to use.
 ```{r}
 urlfile<-"https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/CancerGeneCensusCOSMIC.csv"
@@ -59,7 +65,10 @@ GENES<-CGS$Gene.Symbol[CGS$Hallmark=="Yes"]
 print(paste("You have selected",length(GENES),"important cancer genes like:", paste(sample(GENES,20), collapse = ", "), "..."))
 ```
 
+Dowload TCGA data from the LoadcBioportal that you know.
 ```{r}
+# load TCGA data of lung adenocarcinoma and lung squamous cell carcinoma
+
 TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|lusc", 
                          ClinicNeeded = T, MutNeeded = F, 
                          RNANeeded = T, NormalizeRNA = T, 
@@ -158,7 +167,6 @@ predictions[1, ]
 Alternatively, we can also directly get the class prediction:
 ```{r}
 class_pred <- model %>% predict_classes(as.matrix(TCGAdata$EXP[Val,]))
-
 ```
 
 ```{r}
