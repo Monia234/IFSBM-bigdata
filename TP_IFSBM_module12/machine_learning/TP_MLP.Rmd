@@ -1,0 +1,349 @@
+---
+title: "TP_NN"
+author: "Loic Verlingue"
+date: "13 janvier 2020"
+output: html_document
+---
+# What you will do in this R Notebook
+
+## Introduction
+This is the second day of your training in R for Machine Learning. You will now enter the wide, wild and exciting field of Deep Learning!
+
+Neural Networks and Deep Learning have revolutionized the performance of many Machine Learning tasks: in image analysis, gaming and natural langage understanding, for example.
+
+Again your input is a huge amount of variables (genes expression per patients) and you want to provide the clinician a simple output that he can use for his patients.
+
+I hope you'll enjoye this Notebook and that it can help you to adress your current and/or future challenges.
+
+## Main steps
+After loading TCGA data, we will build and train a simple neural network.
+
+## In practice
+The code is provided to you. You will just have to follow the instructions all along the Notebook.
+I'll give you a little bit of explanation when needed. 
+
+Pay attention: there will be some questions to answer in this notebook.
+
+Finally you will have a partial code to complete at the end of the notebook, and give it back to us.
+
+*--> lets' go!*
+
+## Functions
+
+```{r}
+#source("https://raw.githubusercontent.com/DITEP/TPBigDataIFSBM/master/LoadcBioportal150119.R")
+source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/machine_learning/LoadcBioportal150119.R")
+
+set.seed(1234)
+```
+
+
+## Data
+Select the genes you want to use.
+```{r}
+urlfile<-"https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/machine_learning/CancerGeneCensusCOSMIC.csv"
+CGS<-read.csv(urlfile,stringsAsFactors = F)
+GENES<-CGS$Gene.Symbol[CGS$Hallmark=="Yes"]
+print(paste("You have selected",length(GENES),"important cancer genes like:", paste(sample(GENES,20), collapse = ", "), "..."))
+```
+
+Dowload TCGA data from the LoadcBioportal that you know.
+```{r}
+# load TCGA data of lung adenocarcinoma and lung squamous cell carcinoma
+
+#### YOUR CODE HERE ####
+# set the argument Organ 
+TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|lusc", 
+                         ClinicNeeded = T, MutNeeded = F, 
+                         RNANeeded = T, NormalizeRNA = T, 
+                         FunctionalAnnot = F, PDF = F, Tests=T)
+STUDY<-TCGAdata$STUDY
+print("Here are your patients' numbers:")
+print(table(TCGAdata$CLINIC$study))
+```
+
+```{r}
+head(TCGAdata$EXP)
+```
+
+## Split the data
+```{r}
+TrainSplit=0.8
+Train<-sample(seq(nrow(TCGAdata$CLINIC)),size = round(nrow(TCGAdata$CLINIC)*TrainSplit) )
+Val<-seq(nrow(TCGAdata$CLINIC))[!seq(nrow(TCGAdata$CLINIC))%in%Train]
+paste("Your training and validation cohorts have ",length(Train),"&", length(Val), "patients.")
+```
+
+### Input data
+```{r}
+X<-as.matrix(TCGAdata$EXP[Train,])
+dim(X)
+```
+
+### Output label
+
+```{r}
+Y<-as.matrix(as.numeric(as.factor(TCGAdata$CLINIC$study[Train]))-1)
+head(Y)
+```
+
+## Design your model
+```{r}
+# 3 layer MLP
+L1=30
+L2=15
+L3=1
+```
+
+
+
+### Init
+
+```{r}
+InitW1<-matrix(rnorm(dim(X)[2]*L1),nrow = L1 , ncol = dim(X)[2] )
+dim(InitW1)
+InitB1<-rep(0,L1)
+```
+
+
+```{r}
+InitW2<-matrix(rnorm(L1*L2),nrow = L2, ncol = L1)
+dim(InitW2)
+InitB2<-rep(0,L2)
+```
+
+
+
+```{r}
+InitW3<-matrix(rnorm(L2),nrow = L3, ncol = L2)
+dim(InitW3)
+InitB3<-rep(0,L3)
+```
+
+#### In a list
+
+```{r}
+W<-list(InitW1, InitW2, InitW3)
+B<-list(InitB1, InitB2, InitB3)
+```
+
+
+### Update
+
+```{r}
+Sigmoid<-function(z){1/(1+exp(-z))}
+```
+
+### Foward function
+
+```{r}
+Fw<-function(X,W,B){Sigmoid(X%*%t(W)+B)}
+```
+
+```{r}
+# exemple
+dim(X);dim(InitW1)
+A1<-X%*%t(InitW1)+InitB1
+dim(A1)
+A1<-Fw(X,InitW1,InitB1)
+
+```
+
+
+### Foward propagation
+
+#### step by step
+```{r}
+A1<-Fw(X=X, W = W[[1]], B = B[[1]])
+dim(A1)
+```
+
+```{r}
+A2<-Fw(X=A1, W = W[[2]], B = B[[2]])
+dim(A2)
+```
+
+
+```{r}
+Yhat<-Fw(X=A2, W = W[[3]], B = B[[3]])
+dim(Yhat)
+```
+
+### Results
+
+### Loss function
+
+```{r}
+MSE <- function(Y,Yhat){mean((Yhat-Y)*2)}
+Cost<-function(Y,Yhat){ mean(-Y*log(Yhat)-(1-Y)*log(1-Yhat)) }
+```
+
+
+```{r}
+table(Y,round(Yhat))
+print(paste("MSE =",MSE(Y,Yhat)))
+print(paste("Cost =",Cost(Y,Yhat)))
+```
+
+
+### In a function
+```{r}
+StepsFw<-function(X,W,B){
+  A0<-X
+   A1<-Fw(X=X, W = W[[1]], B = B[[1]])
+   A2<-Fw(X=A1,W = W[[2]], B = B[[2]])
+  A3<-Fw(X=A2,W = W[[3]], B = B[[3]])
+  return(cache=list(A0=A0,A1=A1,A2=A2,A3=A3))
+}
+```
+
+#### run it
+```{r}
+cache<-StepsFw(X,W,B)
+Yhat<-cache[[4]]
+class(Yhat)
+class(cache); length(cache)
+```
+
+
+### Back propagation
+
+#### derivate of loss
+```{r}
+derivMSE<-function(Y,Yhat){ ((2*(Y-Yhat))/length(Y)) }
+
+#derivCost<-function(Y,Yhat){ (Yhat - Y) }
+#dim(Yhat-Y);dim(t(cache$A2))
+#derivCost<-function(Y,Yhat,cache){-1/nrow(cache$A2)*sum(t(cache$A2)%*%(Yhat-Y))}
+derivCost<-function(Y,Yhat,cache){(Yhat-Y)*Yhat/length(Y)}
+
+```
+
+
+#### derivate of sigmoid
+```{r}
+derivSig<-function(z){Sigmoid(z)*(1-Sigmoid(z))}
+```
+
+#### set learning rate
+
+```{r}
+lr=0.01
+```
+
+#### derivate cost function
+```{r}
+dX<-derivCost(Y, Yhat, cache)
+dim(dX)
+```
+
+
+```{r}
+step=2
+StepBack<-function(dX,W,cache, step=3){
+  dZ<-as.matrix(derivSig(dX))
+  dim(dZ);dim(cache[[step]])
+  #dW<-cache[[step+1]]%*%dZ
+  #dW<-dZ%*%t(cache[[step+1]])
+  dW<-t(dZ)%*%cache[[step]]
+  dim(dW)
+  db<-colMeans(dZ)
+  #dim(db)
+  dim(dZ);dim(W[[step]])
+  dX <- dZ%*%W[[step]]
+  dim(dX)
+  return(list(dZ=dZ,dW=dW,db=db,dX=dX))
+}
+```
+
+
+```{r}
+i=1
+step=3
+
+for(i in rev(seq(length(W)))){
+  dcache<-StepBack(dX,W,cache,step = i)
+  dim(dcache$dW)
+  
+  # update W and B
+  W[[i]]<-W[[i]]-lr*dcache$dW
+  B[[i]]<-B[[i]]-lr*dcache$db
+  
+  # update dX
+  dX<-dcache$dX
+  #dim(dX)
+}
+```
+
+
+### Results
+```{r}
+cache<-StepsFw(X,W,B)
+table(Y,round(cache[[4]]))
+print(paste("Cost =",Cost(Y,cache[[4]])))
+
+```
+
+#### iterate
+
+```{r}
+#turn a foward + backward pass into a function
+train<-function(X,W,B,Y,lr=0.01,iteration=10){
+  Cost<-vector()
+  
+  for(iter in seq(iteration)){
+    
+    cache<-StepsFw(X,W,B)
+  #Yhat<-cache[[4]]
+      # store cost
+    Cost<-c(Cost,Cost(Y,cache[[length(cache)]]))
+  
+    dX<-derivCost(Y, cache[[length(cache)]])
+    
+    for(i in rev(seq(length(W))) ){
+    
+    dcache<-StepBack(dX,W,cache,step = i)
+    #dim(dcache$dW)
+    
+    # update W and B
+    W[[i]]<-W[[i]]-lr*dcache$dW
+    B[[i]]<-B[[i]]-lr*dcache$db
+    
+    # update dX
+    dX<-dcache$dX
+    
+    #dim(dX)
+    }
+    
+  }
+  return(list(Cost=Cost,W=W,B=B))
+}
+
+```
+
+### run train function
+```{r}
+history<-train(X,W,B,Y,lr=0.001,iteration=100)
+```
+
+
+### check results
+```{r}
+plot(history$Cost,type = "l", ylab = "Cost", xlab = "iterations")
+```
+
+
+```{r}
+cache<-StepsFw(X,history$W,history$B)
+table(Y,round(cache[[4]]))
+Cost(Y,cache[[4]])
+```
+
+```{r}
+table(InitW1==history$W[[1]])
+image(InitW1)
+image(history$W[[1]])
+```
+
+
+---
