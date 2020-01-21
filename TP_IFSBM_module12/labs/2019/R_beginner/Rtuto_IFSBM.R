@@ -2,7 +2,6 @@
 ## TP du 3 décembre 2019
 ## commande de nettoyage de l'environnement
 
-
 ####################################################################################
 # Cours 1 : 
 ####################################################################################
@@ -234,5 +233,3 @@ monvect[which((monvect>6) | (monvect<3))]
 # commande: mean() avec option na.rm=TRUE
 # testez la significativité de la différence
 # commande: t.test
-
-
