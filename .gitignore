@@ -1,2 +1,18 @@
-*~
-.gitignore
+# Ignore file settings
+*.Rproj
+*.Rproj.user/
+.Rhistory
+.RData
+.DS_store
+
+# Ignore these files
+*.swp
+*.log
+*.aux
+*.out
+
+# packrat lib, opts
+packrat/lib/
+packrat/lib-R/
+packrat/lib-ext/
+packrat/packrat.opts/

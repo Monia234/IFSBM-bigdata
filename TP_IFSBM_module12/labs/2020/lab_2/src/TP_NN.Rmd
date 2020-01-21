@@ -32,10 +32,10 @@ Finally you will have a partial code to complete at the end of the notebook, and
 
 ```{r}
 #source("https://raw.githubusercontent.com/DITEP/TPBigDataIFSBM/master/LoadcBioportal150119.R")
-source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/LoadcBioportal150119.R")
+source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/machine_learning/LoadcBioportal150119.R")
 # install cgdsr
-install.packages("cgdsr")
-install.packages("devtools")
+#install.packages("cgdsr")
+#install.packages("devtools")
 library(reshape2)
 set.seed(1234)
 ```
@@ -59,7 +59,7 @@ install_keras()
 ## Data
 Select the genes you want to use.
 ```{r}
-urlfile<-"https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/CancerGeneCensusCOSMIC.csv"
+urlfile<-"https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/machine_learning/CancerGeneCensusCOSMIC.csv"
 CGS<-read.csv(urlfile,stringsAsFactors = F)
 GENES<-CGS$Gene.Symbol[CGS$Hallmark=="Yes"]
 print(paste("You have selected",length(GENES),"important cancer genes like:", paste(sample(GENES,20), collapse = ", "), "..."))
@@ -71,7 +71,6 @@ Dowload TCGA data from the LoadcBioportal that you know.
 
 #### YOUR CODE HERE ####
 # set the argument Organ 
-
 TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|lusc", 
                          ClinicNeeded = T, MutNeeded = F, 
                          RNANeeded = T, NormalizeRNA = T, 
@@ -106,8 +105,8 @@ Most of deep learning consists of chaining together simple layers. Most layers, 
 ```{r}
 model <- keras_model_sequential()
 model %>%
-  layer_flatten(input_shape = c(250)) %>%
-  layer_dense(units = 128, activation = 'relu') %>%
+  layer_dense(input_shape = 250, units = 128, activation = 'relu') %>%
+  layer_dense(units = 30, activation = 'relu') %>%
   layer_dense(units = 1, activation = 'sigmoid')
 ```
 
@@ -118,15 +117,15 @@ model
 
 
 ### Compile the model
-Before the model is ready for training, it needs a few more settings. These are added during the model’s compile step:
+Before the model is ready for training, it needs a few more settings. These are added during the model's compile step:
 
-Loss function — This measures how accurate the model is during training. We want to minimize this function to “steer” the model in the right direction.
-Optimizer — This is how the model is updated based on the data it sees and its loss function.
-Metrics —Used to monitor the training and testing steps. The following example uses accuracy, the fraction of the images that are correctly classified.
+Loss function - This measures how accurate the model is during training. We want to minimize this function to "steer" the model in the right direction.
+Optimizer - This is how the model is updated based on the data it sees and its loss function.
+Metrics -Used to monitor the training and testing steps. The following example uses accuracy, the fraction of the images that are correctly classified.
 ```{r}
 model %>% compile(
   optimizer = 'adam', 
-  loss = 'mean_squared_error',
+  loss = 'mse',
   metrics = c('accuracy')
 )
 ```
@@ -135,10 +134,10 @@ model %>% compile(
 ## Model training
 Training the neural network model requires the following steps:
 
-Feed the training data to the model — in this example, the train_images and train_labels arrays.
+Feed the training data to the model - in this example, the train_images and train_labels arrays.
 The model learns to associate images and labels.
-We ask the model to make predictions about a test set — in this example, the test_images array. We verify that the predictions match the labels from the test_labels array.
-To start training, call the fit method — the model is “fit” to the training data:
+We ask the model to make predictions about a test set - in this example, the test_images array. We verify that the predictions match the labels from the test_labels array.
+To start training, call the fit method - the model is "fit" to the training data:
 
 ```{r}
 model %>% fit(as.matrix(TCGAdata$EXP[Train,]),TCGAdata$CLINIC$study_num[Train], epochs = 100, validation_split = 0.2, shuffle = FALSE)
@@ -160,7 +159,7 @@ With the model trained, we can use it to make predictions about some new data.
 predictions <- model %>% predict(as.matrix(TCGAdata$EXP[Val,]))
 ```
 
-Here, the model has predicted the label for each image in the testing set. Let’s take a look at the first prediction:
+Here, the model has predicted the label for each image in the testing set. Let's take a look at the first prediction:
 
 ```{r}
 predictions[1, ]
