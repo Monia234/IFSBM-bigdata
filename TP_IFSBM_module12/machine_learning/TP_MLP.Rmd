@@ -212,10 +212,11 @@ class(cache); length(cache)
 ```{r}
 derivMSE<-function(Y,Yhat){ ((2*(Y-Yhat))/length(Y)) }
 
-#derivCost<-function(Y,Yhat){ (Yhat - Y) }
+derivCost<-function(Y,Yhat){ (Yhat - Y) } # dZ/DL
 #dim(Yhat-Y);dim(t(cache$A2))
 #derivCost<-function(Y,Yhat,cache){-1/nrow(cache$A2)*sum(t(cache$A2)%*%(Yhat-Y))}
-derivCost<-function(Y,Yhat,cache){(Yhat-Y)*Yhat/length(Y)}
+#derivCost<-function(Y,Yhat,cache){(Yhat-Y)*Yhat/length(Y)}
+#derivCost<-function(Y,Yhat,cache){-(Y/Yhat)+(1-Y)/(1-Yhat)}
 
 ```
 
@@ -233,15 +234,19 @@ lr=0.01
 
 #### derivate cost function
 ```{r}
-dX<-derivCost(Y, Yhat, cache)
-dim(dX)
+#dX<-derivCost(Y, Yhat)
+#dim(dX)
 ```
 
 
 ```{r}
 step=2
-StepBack<-function(dX,W,cache, step=3){
-  dZ<-as.matrix(derivSig(dX))
+StepBack<-function(dX,W,cache,Y, Yhat, step=3){
+  if(step==length(W)){
+    dZ<-derivCost(Y, Yhat)
+  } else {
+    dZ<-as.matrix(derivSig(dX))
+  }
   dim(dZ);dim(cache[[step]])
   #dW<-cache[[step+1]]%*%dZ
   #dW<-dZ%*%t(cache[[step+1]])
@@ -252,6 +257,7 @@ StepBack<-function(dX,W,cache, step=3){
   dim(dZ);dim(W[[step]])
   dX <- dZ%*%W[[step]]
   dim(dX)
+  
   return(list(dZ=dZ,dW=dW,db=db,dX=dX))
 }
 ```
@@ -262,7 +268,7 @@ i=1
 step=3
 
 for(i in rev(seq(length(W)))){
-  dcache<-StepBack(dX,W,cache,step = i)
+  dcache<-StepBack(dX,W,cache,Y,Yhat,step = i)
   dim(dcache$dW)
   
   # update W and B
@@ -298,11 +304,11 @@ train<-function(X,W,B,Y,lr=0.01,iteration=10){
       # store cost
     Cost<-c(Cost,Cost(Y,cache[[length(cache)]]))
   
-    dX<-derivCost(Y, cache[[length(cache)]])
+    #dX<-derivCost(Y, cache[[length(cache)]])
     
     for(i in rev(seq(length(W))) ){
     
-    dcache<-StepBack(dX,W,cache,step = i)
+    dcache<-StepBack(dX,W,cache,Y,Yhat = cache[[length(cache)]],step = i)
     #dim(dcache$dW)
     
     # update W and B
@@ -323,7 +329,7 @@ train<-function(X,W,B,Y,lr=0.01,iteration=10){
 
 ### run train function
 ```{r}
-history<-train(X,W,B,Y,lr=0.001,iteration=100)
+history<-train(X,W,B,Y,lr=0.001,iteration=400)
 ```
 
 
@@ -340,7 +346,6 @@ Cost(Y,cache[[4]])
 ```
 
 ```{r}
-table(InitW1==history$W[[1]])
 image(InitW1)
 image(history$W[[1]])
 ```
