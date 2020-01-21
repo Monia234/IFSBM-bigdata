@@ -1,12 +1,20 @@
 ---
-title: "TP_NN"
-author: "Loic Verlingue"
-date: "13 janvier 2020"
-output: html_document
+title: "TP Multi Layer Perceptron"
+author: "L. Verlingue & Y. Pradat"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    theme: readable
+    toc: true
+    toc_float: true
+    code_folding: show
+  rmdformats::material:
+    highlight: kate
 ---
+
 # What you will do in this R Notebook
 
-## Introduction
+## 1.1 Introduction
 This is the second day of your training in R for Machine Learning. You will now enter the wide, wild and exciting field of Deep Learning!
 
 Neural Networks and Deep Learning have revolutionized the performance of many Machine Learning tasks: in image analysis, gaming and natural langage understanding, for example.
@@ -15,10 +23,10 @@ Again your input is a huge amount of variables (genes expression per patients) a
 
 I hope you'll enjoye this Notebook and that it can help you to adress your current and/or future challenges.
 
-## Main steps
+## 1.2 Main steps
 After loading TCGA data, we will build and train a simple neural network.
 
-## In practice
+## 1.3 In practice
 The code is provided to you. You will just have to follow the instructions all along the Notebook.
 I'll give you a little bit of explanation when needed. 
 
@@ -28,26 +36,26 @@ Finally you will have a partial code to complete at the end of the notebook, and
 
 *--> lets' go!*
 
-## Functions
+# 2. Functions
 
 ```{r}
-#source("https://raw.githubusercontent.com/DITEP/TPBigDataIFSBM/master/LoadcBioportal150119.R")
-source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/machine_learning/LoadcBioportal150119.R")
+source("../../lib/LoadcBioportal150119.R")
 
 set.seed(1234)
 ```
 
 
-## Data
+## 2.1 Data
 Select the genes you want to use.
+
 ```{r}
-urlfile<-"https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/machine_learning/CancerGeneCensusCOSMIC.csv"
-CGS<-read.csv(urlfile,stringsAsFactors = F)
+CGS<-read.csv("../data/CancerGeneCensusCOSMIC.csv",stringsAsFactors = F)
 GENES<-CGS$Gene.Symbol[CGS$Hallmark=="Yes"]
 print(paste("You have selected",length(GENES),"important cancer genes like:", paste(sample(GENES,20), collapse = ", "), "..."))
 ```
 
 Dowload TCGA data from the LoadcBioportal that you know.
+
 ```{r}
 # load TCGA data of lung adenocarcinoma and lung squamous cell carcinoma
 
@@ -66,7 +74,8 @@ print(table(TCGAdata$CLINIC$study))
 head(TCGAdata$EXP)
 ```
 
-## Split the data
+## 2.2 Split the data
+
 ```{r}
 TrainSplit=0.8
 Train<-sample(seq(nrow(TCGAdata$CLINIC)),size = round(nrow(TCGAdata$CLINIC)*TrainSplit) )
@@ -74,20 +83,22 @@ Val<-seq(nrow(TCGAdata$CLINIC))[!seq(nrow(TCGAdata$CLINIC))%in%Train]
 paste("Your training and validation cohorts have ",length(Train),"&", length(Val), "patients.")
 ```
 
-### Input data
+### 2.2.1 Input data
+
 ```{r}
 X<-as.matrix(TCGAdata$EXP[Train,])
 dim(X)
 ```
 
-### Output label
+### 2.2.2 Output label
 
 ```{r}
 Y<-as.matrix(as.numeric(as.factor(TCGAdata$CLINIC$study[Train]))-1)
 head(Y)
 ```
 
-## Design your model
+## 2.3 Design your model
+
 ```{r}
 # 3 layer MLP
 L1=30
@@ -97,7 +108,7 @@ L3=1
 
 
 
-### Init
+### 2.3.1 Init
 
 ```{r}
 InitW1<-matrix(rnorm(dim(X)[2]*L1),nrow = L1 , ncol = dim(X)[2] )
@@ -128,13 +139,13 @@ B<-list(InitB1, InitB2, InitB3)
 ```
 
 
-### Update
+### 2.3.2 Update
 
 ```{r}
 Sigmoid<-function(z){1/(1+exp(-z))}
 ```
 
-### Foward function
+### 2.3.3 Foward function
 
 ```{r}
 Fw<-function(X,W,B){Sigmoid(X%*%t(W)+B)}
@@ -150,7 +161,7 @@ A1<-Fw(X,InitW1,InitB1)
 ```
 
 
-### Foward propagation
+### 2.3.4 Foward propagation
 
 #### step by step
 ```{r}
@@ -169,9 +180,9 @@ Yhat<-Fw(X=A2, W = W[[3]], B = B[[3]])
 dim(Yhat)
 ```
 
-### Results
+## 2.4 Results
 
-### Loss function
+### 2.4.1 Loss function
 
 ```{r}
 MSE <- function(Y,Yhat){mean((Yhat-Y)*2)}
@@ -186,7 +197,8 @@ print(paste("Cost =",Cost(Y,Yhat)))
 ```
 
 
-### In a function
+### 2.4.2 In a function
+
 ```{r}
 StepsFw<-function(X,W,B){
   A0<-X
@@ -198,6 +210,7 @@ StepsFw<-function(X,W,B){
 ```
 
 #### run it
+
 ```{r}
 cache<-StepsFw(X,W,B)
 Yhat<-cache[[4]]
@@ -206,9 +219,10 @@ class(cache); length(cache)
 ```
 
 
-### Back propagation
+### 2.4.1 Back propagation
 
 #### derivate of loss
+
 ```{r}
 derivMSE<-function(Y,Yhat){ ((2*(Y-Yhat))/length(Y)) }
 
@@ -282,7 +296,7 @@ for(i in rev(seq(length(W)))){
 ```
 
 
-### Results
+### 2.4.2 Results
 ```{r}
 cache<-StepsFw(X,W,B)
 table(Y,round(cache[[4]]))
@@ -327,13 +341,13 @@ train<-function(X,W,B,Y,lr=0.01,iteration=10){
 
 ```
 
-### run train function
+### 2.4.3 run train function
 ```{r}
 history<-train(X,W,B,Y,lr=0.001,iteration=400)
 ```
 
 
-### check results
+### 2.4.4 check results
 ```{r}
 plot(history$Cost,type = "l", ylab = "Cost", xlab = "iterations")
 ```
