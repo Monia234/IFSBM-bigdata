@@ -11,8 +11,6 @@
 *.aux
 *.out
 
-# packrat lib, opts
-packrat/lib/
-packrat/lib-R/
-packrat/lib-ext/
-packrat/packrat.opts/
+# Ignore all packrat except packrat.lock
+packrat/
+!packrat/packrat.lock
