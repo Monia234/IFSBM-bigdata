@@ -1,6 +1,4 @@
 #### load TCGA data from cbioportal
-library(cgdsr)
-
 LoadcBioportal<-function(
     Genes=c(
       "TP53",
@@ -19,6 +17,8 @@ LoadcBioportal<-function(
     normalized = function(x) {(x-min(x))/(max(x)-min(x))}
 
     #### load cbioportal
+    library(cgdsr)
+    
     mycgds = CGDS("http://www.cbioportal.org/")
     if(Tests){
         test(mycgds)
