@@ -19,7 +19,7 @@ This is the second day of your training in R for Machine Learning. You will now 
 
 Neural Networks and Deep Learning have revolutionized the performance of many Machine Learning tasks: in image analysis, gaming and natural langage understanding, for example.
 
-Again your input is a huge amount of variables (genes expression per patients) and you want to provide the clinician a simple output that he can use for his patients.
+This notebook will introduce you to the basic functions of a simple type of neural network: a multilayer perceptron (MLP). 
 
 I hope you'll enjoye this Notebook and that it can help you to adress your current and/or future challenges.
 
@@ -32,9 +32,7 @@ I'll give you a little bit of explanation when needed.
 
 Pay attention: there will be some questions to answer in this notebook.
 
-Finally you will have a partial code to complete at the end of the notebook, and give it back to us.
-
-*--> lets' go!*
+*look at the slides to warm up*
 
 # 2. Functions
 
@@ -59,9 +57,8 @@ Dowload TCGA data from the LoadcBioportal that you know.
 ```{r}
 # load TCGA data of lung adenocarcinoma and lung squamous cell carcinoma
 
-#### YOUR CODE HERE ####
 # set the argument Organ 
-TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|lusc", 
+TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|gbm", 
                          ClinicNeeded = T, MutNeeded = F, 
                          RNANeeded = T, NormalizeRNA = T, 
                          FunctionalAnnot = F, PDF = F, Tests=T)
@@ -70,11 +67,17 @@ print("Here are your patients' numbers:")
 print(table(TCGAdata$CLINIC$study))
 ```
 
+Warm up by printing a little part of the expression data you have loaded (not the full table!!!)
 ```{r}
-head(TCGAdata$EXP)
+#### YOUR CODE HERE ####
+
+#### END CODE ####
+
 ```
 
 ## 2.2 Split the data
+
+You are now familliar with splitting your data.
 
 ```{r}
 TrainSplit=0.8
@@ -84,14 +87,14 @@ paste("Your training and validation cohorts have ",length(Train),"&", length(Val
 ```
 
 ### 2.2.1 Input data
-
+You will be performing matrix calculation, so turn your data into matrices, and rpint its dimensions.
 ```{r}
 X<-as.matrix(TCGAdata$EXP[Train,])
 dim(X)
 ```
 
 ### 2.2.2 Output label
-
+Idem for outputs that should be numerical.
 ```{r}
 Y<-as.matrix(as.numeric(as.factor(TCGAdata$CLINIC$study[Train]))-1)
 head(Y)
@@ -99,6 +102,7 @@ head(Y)
 
 ## 2.3 Design your model
 
+We want to do a 3 layer MLP. Let's define the number of units per layer.
 ```{r}
 # 3 layer MLP
 L1=30
@@ -106,17 +110,19 @@ L2=15
 L3=1
 ```
 
-
+You want to know what happened? *look at the slides*
 
 ### 2.3.1 Init
 
+Random initialisation of the weights for each layers. The following weight matrix are detailed, one by one. Dimension are *n,m* (N units layer L, N units layer L-1).
+Weight matrix of layer input data to L1.
 ```{r}
 InitW1<-matrix(rnorm(dim(X)[2]*L1),nrow = L1 , ncol = dim(X)[2] )
 dim(InitW1)
 InitB1<-rep(0,L1)
 ```
 
-
+Weight matrix of layer L1 to L2.
 ```{r}
 InitW2<-matrix(rnorm(L1*L2),nrow = L2, ncol = L1)
 dim(InitW2)
@@ -124,28 +130,32 @@ InitB2<-rep(0,L2)
 ```
 
 
-
+Your turn: initialize the weight matrix of layer L2 to L3.
 ```{r}
-InitW3<-matrix(rnorm(L2),nrow = L3, ncol = L2)
-dim(InitW3)
+#### YOUR CODE HERE ####
+
+#InitW3<-matrix(rnorm(L2),nrow = L3, ncol = L2)
+#dim(InitW3)
+
+#### END CODE ####
+
 InitB3<-rep(0,L3)
 ```
 
-#### In a list
-
+Finaly, store your weight matrices and beta vectors in a list.
 ```{r}
 W<-list(InitW1, InitW2, InitW3)
 B<-list(InitB1, InitB2, InitB3)
 ```
 
 
-### 2.3.2 Update
-
+### 2.3.2 Update function
+Set your update function: here we have chosedd sigmoid update.
 ```{r}
 Sigmoid<-function(z){1/(1+exp(-z))}
 ```
 
-### 2.3.3 Foward function
+### 2.3.3 Update function
 
 ```{r}
 Fw<-function(X,W,B){Sigmoid(X%*%t(W)+B)}
