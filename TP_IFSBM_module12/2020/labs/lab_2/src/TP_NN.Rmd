@@ -33,9 +33,6 @@ Finally you will have a partial code to complete at the end of the notebook, and
 ```{r}
 #source("https://raw.githubusercontent.com/DITEP/TPBigDataIFSBM/master/LoadcBioportal150119.R")
 source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/machine_learning/LoadcBioportal150119.R")
-# install cgdsr
-#install.packages("cgdsr")
-#install.packages("devtools")
 library(reshape2)
 set.seed(1234)
 ```
@@ -48,8 +45,8 @@ To use both with R (gold standard is to use it with python), it is recommended y
 Dowload Anaconda may take some time. *Look at the slides!* (computational graphs and neural nets)
 
 Then, load and install Keras.
+
 ```{r}
-devtools::install_github("rstudio/keras")
 library(keras)
 install_keras()
 # help for R keras at https://keras.rstudio.com/
