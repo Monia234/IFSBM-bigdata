@@ -88,12 +88,13 @@ You will also need some other usefull R packages such as:
 #install.packages("glmnet")
 #install.packages("survival")
 # install cgdsr
-#install.packages("cgdsr")
-#install.packages("reshape2")
+install.packages("cgdsr")
+install.packages("reshape2")
 
 library(reshape2)
 library(glmnet)
 library(survival)
+library(cgdsr)
 ```
 
 # Use LoadcBioportal() function
@@ -118,7 +119,7 @@ TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|gbm",
                          ClinicNeeded = T, MutNeeded = F, 
                          RNANeeded = T, NormalizeRNA = T, 
                          FunctionalAnnot = F, PDF = F, Tests=T)
-
+class(TCGAdata)
 STUDY<-TCGAdata$STUDY
 print("Here are your patients' numbers:")
 print(table(TCGAdata$CLINIC$study))
