@@ -1,7 +1,7 @@
 ---
 title: "TP bioinfo IFSBM UE Big Data"
 subtitle: "Modèles prédictifs"
-author: "Loic Verlingue, Md, PhDc loic.verlingues@gustaveroussy.fr"
+author: "Loic Verlingue, Md, PhDc loic.verlingue@gustaveroussy.fr"
 output: html_notebook
 ---
 
