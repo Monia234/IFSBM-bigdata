@@ -31,9 +31,8 @@ Finally you will have a partial code to complete at the end of the notebook, and
 ## Functions
 
 ```{r}
-#source("https://raw.githubusercontent.com/DITEP/TPBigDataIFSBM/master/LoadcBioportal150119.R")
-source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/machine_learning/LoadcBioportal150119.R")
-library(reshape2)
+source("../../lib/LoadcBioportal150119.R")
+
 set.seed(1234)
 ```
 
@@ -56,8 +55,7 @@ install_keras()
 ## Data
 Select the genes you want to use.
 ```{r}
-urlfile<-"https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/machine_learning/CancerGeneCensusCOSMIC.csv"
-CGS<-read.csv(urlfile,stringsAsFactors = F)
+CGS<-read.csv("../data/CancerGeneCensusCOSMIC.csv",stringsAsFactors = F)
 GENES<-CGS$Gene.Symbol[CGS$Hallmark=="Yes"]
 print(paste("You have selected",length(GENES),"important cancer genes like:", paste(sample(GENES,20), collapse = ", "), "..."))
 ```

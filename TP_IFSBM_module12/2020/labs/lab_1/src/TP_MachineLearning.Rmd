@@ -57,8 +57,7 @@ The Cancer Gene Census, CGS, is a selection of important genes for cancer devell
 To load the [Cancer Gene Census](https://cancer.sanger.ac.uk/census) table you need a login. To facilitate your work, I have provided it to you. You simply have to run the following cell.
 
 ```{r}
-#urlfile<-"https://raw.githubusercontent.com/DITEP/TPBigDataIFSBM/master/CancerGeneCensusCOSMIC.csv"
-urlfile<-"https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/CancerGeneCensusCOSMIC.csv"
+urlfile<-"https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/2020/labs/lab_2/data/CancerGeneCensusCOSMIC.csv"
 CGS<-read.csv(urlfile,stringsAsFactors = F)
 GENES<-CGS$Gene.Symbol[CGS$Hallmark=="Yes"]
 print(paste("You have selected",length(GENES),"important cancer genes like:", paste(sample(GENES,20), collapse = ", "), "..."))
@@ -75,7 +74,7 @@ For that you will need to install the official cBioportal R package [cgdsr](http
 
 ```{r}
 #source("https://raw.githubusercontent.com/DITEP/TPBigDataIFSBM/master/LoadcBioportal150119.R")
-source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/LoadcBioportal150119.R")
+source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/2020/labs/lib/LoadcBioportal150119.R")
 # install cgdsr
 install.packages("cgdsr")
 install.packages("reshape2")
