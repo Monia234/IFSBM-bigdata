@@ -75,10 +75,6 @@ For that you will need to install the official cBioportal R package [cgdsr](http
 ```{r}
 #source("https://raw.githubusercontent.com/DITEP/TPBigDataIFSBM/master/LoadcBioportal150119.R")
 source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/2020/labs/lib/LoadcBioportal150119.R")
-# install cgdsr
-install.packages("cgdsr")
-install.packages("reshape2")
-library(reshape2)
 ```
 
 You will also need some other usefull R packages such as:
@@ -88,12 +84,15 @@ You will also need some other usefull R packages such as:
 - the [survival](https://cran.r-project.org/web/packages/survival/survival.pdf) package to analyse survival data
 
 ```{r}
-# Install and load usefull packages
-install.packages("glmnet")
-install.packages("survival")
+# Load usefull packages
+#install.packages("glmnet")
+#install.packages("survival")
+# install cgdsr
+#install.packages("cgdsr")
+#install.packages("reshape2")
+library(reshape2)
 library(glmnet)
 library(survival)
-
 ```
 
 # Use LoadcBioportal() function
@@ -134,8 +133,8 @@ names(TCGAdata)
 ```
 
 *rescue only, else skip*
-EXP<-read.csv2("https://raw.githubusercontent.com/DITEP/IFSBM-bigdata/master/TP_IFSBM_module12/Rescue/EXPlung_gbm.csv", row.names = 1)
-CLINIC<-read.csv2("https://raw.githubusercontent.com/DITEP/IFSBM-bigdata/master/TP_IFSBM_module12/Rescue/Cliniclung_gbm.csv", row.names = 1)
+EXP<-read.csv2("https://github.com/gustaveroussy/IFSBM-bigdata/tree/master/TP_IFSBM_module12/2020/labs/lab_2/data/EXPlung_gbm.csv", row.names = 1)
+CLINIC<-read.csv2("https://github.com/gustaveroussy/IFSBM-bigdata/tree/master/TP_IFSBM_module12/2020/labs/lab_2/data/Cliniclung_gbm.csv", row.names = 1)
 TCGAdata<-list()
 TCGAdata["EXP"]<-EXP
 TCGAdata["CLINIC"]<-CLINIC
@@ -144,7 +143,6 @@ TCGAdata["CLINIC"]<-CLINIC
 It is of good practice to check the dimension of your data. The dimensions are in the form [N rows, N columns].
 
 ```{r}
-
 # check dimensions of your data                          
 lapply(TCGAdata,dim)
 
