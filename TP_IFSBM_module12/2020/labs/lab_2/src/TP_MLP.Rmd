@@ -134,9 +134,6 @@ Your turn: initialize the weight matrix of layer L2 to L3.
 ```{r}
 #### YOUR CODE HERE ####
 
-#InitW3<-matrix(rnorm(L2),nrow = L3, ncol = L2)
-#dim(InitW3)
-
 #### END CODE ####
 
 InitB3<-rep(0,L3)
@@ -149,66 +146,62 @@ B<-list(InitB1, InitB2, InitB3)
 ```
 
 
-### 2.3.2 Update function
-Set your update function: here we have chosedd sigmoid update.
+### 2.3.2 Activation function
+Set your activation function: here we have chosed sigmoid update.
 ```{r}
 Sigmoid<-function(z){1/(1+exp(-z))}
 ```
 
 ### 2.3.3 Update function
-
+Set your update function.
 ```{r}
 Fw<-function(X,W,B){Sigmoid(X%*%t(W)+B)}
 ```
 
-```{r}
-# exemple
-dim(X);dim(InitW1)
-A1<-X%*%t(InitW1)+InitB1
-dim(A1)
-A1<-Fw(X,InitW1,InitB1)
-
-```
 
 
 ### 2.3.4 Foward propagation
 
 #### step by step
+1st layer
+For the first layer: matrix multiplication of the L1 weights *InitW1* and input data *X*.
 ```{r}
+# exemple
+paste("Data dimensions :", paste( dim(X), collapse = ",") )
+paste("WL1 dimensions :", paste( dim(InitW1), collapse = ",") )
 A1<-Fw(X=X, W = W[[1]], B = B[[1]])
-dim(A1)
+paste("L1 unit dimensions :", paste(dim(A1), collapse = ",") )
 ```
 
+2nd layer
 ```{r}
 A2<-Fw(X=A1, W = W[[2]], B = B[[2]])
 dim(A2)
 ```
 
-
+3rd layer
 ```{r}
 Yhat<-Fw(X=A2, W = W[[3]], B = B[[3]])
 dim(Yhat)
 ```
 
-## 2.4 Results
+## 2.4 First predictions
 
 ### 2.4.1 Loss function
-
+Define your cross entropy loss function
 ```{r}
-MSE <- function(Y,Yhat){mean((Yhat-Y)*2)}
-Cost<-function(Y,Yhat){ mean(-Y*log(Yhat)-(1-Y)*log(1-Yhat)) }
+Cost<-function(Y,Yhat){ -mean(Y*log(Yhat)+(1-Y)*log(1-Yhat)) }
 ```
 
-
+Visualize the confusion matrix and the cost.
 ```{r}
 table(Y,round(Yhat))
-print(paste("MSE =",MSE(Y,Yhat)))
 print(paste("Cost =",Cost(Y,Yhat)))
 ```
 
 
 ### 2.4.2 In a function
-
+You can store these foward propagation into a function. It will be usefull to iterate.
 ```{r}
 StepsFw<-function(X,W,B){
   A0<-X
@@ -219,31 +212,26 @@ StepsFw<-function(X,W,B){
 }
 ```
 
-#### run it
-
+To run it, simply call the function as follow:
 ```{r}
 cache<-StepsFw(X,W,B)
-Yhat<-cache[[4]]
-class(Yhat)
-class(cache); length(cache)
+# the values of each units are stores in the list "cache".
+# the predictions of the model are the values of the last layer.
+Yhat<-cache[[length(cache)]]
 ```
 
 
 ### 2.4.1 Back propagation
 
-#### derivate of loss
+As presented in the lecture, you have to compute the derivations of the loss given the parameters of the model. This uses the chain rule of calculus. Every step of the computational graph are derived step by step up to the parameters.
+Several conventional steps are encoded in the following functions.
+There is a trick to compute the derivate of the categorical cross entropy (logistic cost) given the value z (the results of the linear function before activation)!
 
+#### derivate of cost (=loss): dZ/DL
+This is the trick:
 ```{r}
-derivMSE<-function(Y,Yhat){ ((2*(Y-Yhat))/length(Y)) }
-
-derivCost<-function(Y,Yhat){ (Yhat - Y) } # dZ/DL
-#dim(Yhat-Y);dim(t(cache$A2))
-#derivCost<-function(Y,Yhat,cache){-1/nrow(cache$A2)*sum(t(cache$A2)%*%(Yhat-Y))}
-#derivCost<-function(Y,Yhat,cache){(Yhat-Y)*Yhat/length(Y)}
-#derivCost<-function(Y,Yhat,cache){-(Y/Yhat)+(1-Y)/(1-Yhat)}
-
+derivCost<-function(Y,Yhat){ (Yhat - Y) }
 ```
-
 
 #### derivate of sigmoid
 ```{r}
@@ -251,45 +239,47 @@ derivSig<-function(z){Sigmoid(z)*(1-Sigmoid(z))}
 ```
 
 #### set learning rate
-
+An important hyperparameter!
 ```{r}
 lr=0.01
 ```
 
-#### derivate cost function
+#### Function for a single step back
+Stack together your derivates into a chain rule function.
 ```{r}
-#dX<-derivCost(Y, Yhat)
-#dim(dX)
-```
-
-
-```{r}
-step=2
 StepBack<-function(dX,W,cache,Y, Yhat, step=3){
+  
+  # For the first step back, you can use the derivation of the cost. 
+  # If not, use the derivation of the sigmoid
   if(step==length(W)){
+    # derivate the cost function
     dZ<-derivCost(Y, Yhat)
   } else {
+    # derivate the previous layer value
     dZ<-as.matrix(derivSig(dX))
   }
-  dim(dZ);dim(cache[[step]])
-  #dW<-cache[[step+1]]%*%dZ
-  #dW<-dZ%*%t(cache[[step+1]])
+  
+  # Next, derivate up to the weights and biase terms 
+  
+  #dim(dZ);dim(cache[[step]])
   dW<-t(dZ)%*%cache[[step]]
-  dim(dW)
+  
+  #dim(dW)
   db<-colMeans(dZ)
   #dim(db)
-  dim(dZ);dim(W[[step]])
+  
+  # Compute the previous dX
+  #dim(dZ);dim(W[[step]])
   dX <- dZ%*%W[[step]]
-  dim(dX)
+  #dim(dX)
   
   return(list(dZ=dZ,dW=dW,db=db,dX=dX))
 }
 ```
 
+Run your function for the layers in your neural net. A loop is necessary to 
 
 ```{r}
-i=1
-step=3
 
 for(i in rev(seq(length(W)))){
   dcache<-StepBack(dX,W,cache,Y,Yhat,step = i)
