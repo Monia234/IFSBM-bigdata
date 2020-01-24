@@ -57,7 +57,7 @@ The Cancer Gene Census, CGS, is a selection of important genes for cancer devell
 To load the [Cancer Gene Census](https://cancer.sanger.ac.uk/census) table you need a login. To facilitate your work, I have provided it to you. You simply have to run the following cell.
 
 ```{r}
-urlfile<-"https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/2020/labs/lab_2/data/CancerGeneCensusCOSMIC.csv"
+urlfile<-"../data/CancerGeneCensusCOSMIC.csv"
 CGS<-read.csv(urlfile,stringsAsFactors = F)
 GENES<-CGS$Gene.Symbol[CGS$Hallmark=="Yes"]
 print(paste("You have selected",length(GENES),"important cancer genes like:", paste(sample(GENES,20), collapse = ", "), "..."))
@@ -73,8 +73,7 @@ For you, I have built a function that will load the data you need from a list of
 For that you will need to install the official cBioportal R package [cgdsr](http://www.cbioportal.org/rmatlab) and my function [LoadcBioportal150119.R](https://github.com/DITEP/TPBigDataIFSBM) (if you are curious you can go and check the source code of this function).
 
 ```{r}
-#source("https://raw.githubusercontent.com/DITEP/TPBigDataIFSBM/master/LoadcBioportal150119.R")
-source("https://raw.githubusercontent.com/gustaveroussy/IFSBM-bigdata/master/TP_IFSBM_module12/2020/labs/lib/LoadcBioportal150119.R")
+source("../../lib/LoadcBioportal150119.R")
 ```
 
 You will also need some other usefull R packages such as:
@@ -85,12 +84,6 @@ You will also need some other usefull R packages such as:
 
 ```{r}
 # Load usefull packages
-#install.packages("glmnet")
-#install.packages("survival")
-# install cgdsr
-#install.packages("cgdsr")
-#install.packages("reshape2")
-
 library(reshape2)
 library(glmnet)
 library(survival)
@@ -100,12 +93,13 @@ library(survival)
 
 Your first step is to use the LoadcBioportal() function to load the TCGA data.
 A R function is composed of several arguments that you may change depending on your task.
-For example here you can query for various tumor types existing in the TCGA. Be careful, you can use either the official TCGA nomeclature (```luad``` = lung adenocarcinoma, ```gbm``` = glioblastoma), or the name of the organ of origin (```lung``` = luad & lusc, ```brain``` = gbm & lgg).
+For example here you can query for various tumor types existing in the TCGA. Be careful, you can use either the official
+TCGA nomeclature (luad = lung adenocarcinoma, gbm = glioblastoma), or the name of the organ of origin (lung = luad & lusc, brain = gbm & lgg).
 
-You will also query only the important genes ```GENES``` selected before (otherwise it could be very long).
+You will also query only the important genes GENES selected before (otherwise it could be very long).
 
-In regular expression (=computer langage), the "OR" logical connector is writen ```|```.
-Moreoever, ```T``` stands for ```TRUE``` and ```F``` stands for ```FALSE```.
+In regular expression (=computer langage), the "OR" logical connector is writen `|`.
+Moreoever, `T` stands for `TRUE` and `F` stands for `FALSE`.
 Look at the arguments to understand the possibilities of this function.
 
 ```{r}
@@ -114,10 +108,17 @@ Look at the arguments to understand the possibilities of this function.
 # load data
 #############
 
-TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|gbm", 
-                         ClinicNeeded = T, MutNeeded = F, 
-                         RNANeeded = T, NormalizeRNA = T, 
-                         FunctionalAnnot = F, PDF = F, Tests=T)
+TCGAdata<-LoadcBioportal(
+  Genes=GENES,
+  Organ="luad|gbm",
+  ClinicNeeded=T,
+  MutNeeded=F,
+  RNANeeded=T,
+  NormalizeRNA=T,
+  FunctionalAnnot=F,
+  PDF=F,
+  Tests=T
+)
 
 STUDY<-TCGAdata$STUDY
 print("Here are your patients' numbers:")
@@ -126,19 +127,23 @@ print(table(TCGAdata$CLINIC$study))
 ```
 
 
-Tis function returns a list called ```TCGAdata``` where each request is stored under the following names: 
+This function returns a list called `TCGAdata` where each request is stored under the following names: 
 
 ```{r}
 names(TCGAdata)
-
 ```
 
+
 *rescue only, else skip*
-EXP<-read.csv2("https://github.com/gustaveroussy/IFSBM-bigdata/tree/master/TP_IFSBM_module12/2020/labs/lab_2/data/EXPlung_gbm.csv", row.names = 1)
-CLINIC<-read.csv2("https://github.com/gustaveroussy/IFSBM-bigdata/tree/master/TP_IFSBM_module12/2020/labs/lab_2/data/Cliniclung_gbm.csv", row.names = 1)
-TCGAdata<-list()
-TCGAdata["EXP"]<-EXP
-TCGAdata["CLINIC"]<-CLINIC
+
+```{r}
+# EXP<-read.csv2("https://github.com/gustaveroussy/IFSBM-bigdata/tree/master/TP_IFSBM_module12/2020/labs/lab_2/data/EXPlung_gbm.csv", row.names = 1)
+# CLINIC<-read.csv2("https://github.com/gustaveroussy/IFSBM-bigdata/tree/master/TP_IFSBM_module12/2020/labs/lab_2/data/Cliniclung_gbm.csv", row.names = 1)
+# TCGAdata<-list()
+# TCGAdata["EXP"]<-EXP
+# TCGAdata["CLINIC"]<-CLINIC
+```
+
 *end rescue only*
 
 It is of good practice to check the dimension of your data. The dimensions are in the form [N rows, N columns].
@@ -146,22 +151,21 @@ It is of good practice to check the dimension of your data. The dimensions are i
 ```{r}
 # check dimensions of your data                          
 lapply(TCGAdata,dim)
-
 ```
-See you didn't load mutation data because of the argument ```MutNeeded = F``` so the dimensions of the ```TCGAdata$MUT``` is [0,0].
-The function has selected and sorted the patients so that you have a ```TCGAdata$EXP``` and ```TCGAdata$CLINIC```with the same patients as rows and no NAs.
 
----
+See you didn't load mutation data because of the argument `MutNeeded = F` so the dimensions of the `TCGAdata$MUT` is [0,0].
+The function has selected and sorted the patients so that you have a `TCGAdata$EXP` and `TCGAdata$CLINIC` with the same patients as rows and no NAs.
+
 # Description of the data
 
 The first very important step is to visualize and describe your data. It can be tricky when you have huge multidimensional matrices. 
 
 ## Distribution with densities
-For continuous data such as RNAseq, simply plotting the distribution is a good first step. See that the LoadcBioportal() function has performed some processing of the RNA data because you have set the argument ```NormalizeRNA = T```.
+For continuous data such as RNAseq, simply plotting the distribution is a good first step. See that the LoadcBioportal()
+function has performed some processing of the RNA data because you have set the argument `NormalizeRNA = T`
 
 ```{r}
 # check distribution of gene expression
-
 hist(as.matrix(TCGAdata$EXP[TCGAdata$CLINIC$study=="luad",]),col=2,
      main="Distribution of gene expressions",xlab="Normalized TPM", freq = F)
 hist(as.matrix(TCGAdata$EXP[TCGAdata$CLINIC$study=="gbm",]),add=T,col=adjustcolor(3,0.7), freq = F)
@@ -199,7 +203,6 @@ legend("bottomright",legend=c("luad","gbm"), pch=16, cex=0.8, col=2:3)
 
 your answer here: 
 
----
 # Your first classifier
 
 Can you identify the organ of origin from the gene expressions?
@@ -225,12 +228,21 @@ your answer here:
 
 ## Second step, train your logistic regression model.
 [glmnet](https://cran.r-project.org/web/packages/glmnet/glmnet.pdf) is a great tool: glm stands for Generalized Linear Models and net for some regularization procedures (optional, set to 0 here). 
-The ```family``` argument stands for the type of model to use: here you have 2 classes (binomial) and you want to use a traditional logistic regression.
+The family argument stands for the type of model to use: here you have 2 classes (binomial) and you want to use a traditional logistic regression.
 
 ```{r}
 # logistic regression fit
-LRfit<-glmnet(as.matrix(TCGAdata$EXP[Train,]),as.factor(TCGAdata$CLINIC$study[Train]),
-              family = "binomial", alpha = 0, lambda = 0)
+LRfit<-glmnet(
+  x=as.matrix(
+    TCGAdata$EXP[Train,]
+  ),
+  y=as.factor(
+    TCGAdata$CLINIC$study[Train]
+  ),
+  family="binomial",
+  alpha=0,
+  lambda=0
+)
 ```
 
 ### Quizz
@@ -271,7 +283,6 @@ Choose the number of best genes you want to look at (in the cell).
 Ngenes=20
 paste("Your top", Ngenes, "genes are:")
 as.matrix(coefficients(LRfit))[head(order(abs(coefficients(LRfit)),decreasing = T),Ngenes),,drop=F]
-
 ```
 
 ### Quizz
@@ -291,8 +302,17 @@ Lasso (like other regularization procedures) comes with an additional parameter 
 
 ```{r}
 # choose your lambda with cross validation  (CV)
-LRcv<-cv.glmnet(as.matrix(TCGAdata$EXP[Train,]),as.factor(TCGAdata$CLINIC$study[Train]),
-                family = "binomial",alpha = 1, nfolds = 10)
+LRcv<-cv.glmnet(
+  x=as.matrix(
+    TCGAdata$EXP[Train,]
+  ),
+  y=as.factor(
+    TCGAdata$CLINIC$study[Train]
+  ),
+  family="binomial",
+  alpha=1,
+  nfolds=10
+)
 plot(LRcv)
 print(paste("You best value of lambda is :", LRcv$lambda.min))
 
@@ -308,10 +328,20 @@ Then build your final model.
 
 ```{r}
 # logistic regression fit
-LRfitReduced<-glmnet(as.matrix(TCGAdata$EXP[Train,]),as.factor(TCGAdata$CLINIC$study[Train]),
-              family = "binomial", alpha = 1, lambda = LRcv$lambda.min)
+LRfitReduced<-glmnet(
+  as.matrix(
+    TCGAdata$EXP[Train,
+    ]
+  ),
+  as.factor(
+    TCGAdata$CLINIC$study[Train]
+  ),
+  family="binomial",
+  alpha=1,
+  lambda=LRcv$lambda.min
+)
 
-#plot(LRfitReduced)
+plot(LRfitReduced)
 Preds<-predict(LRfitReduced,as.matrix(TCGAdata$EXP[Val,]),type = "class")
 table(Preds,TCGAdata$CLINIC$study[Val])
 
@@ -330,7 +360,6 @@ COEF<-as.matrix(coefficients(LRfitReduced))
 GoodCOEF<-COEF[COEF[,1]!=0,,drop=F]
 paste("The selected", nrow(GoodCOEF), "genes are:")
 GoodCOEF[order(abs(GoodCOEF[,1]),decreasing = T),,drop=F]
-
 ```
 
 ### Quizz
@@ -339,7 +368,6 @@ GoodCOEF[order(abs(GoodCOEF[,1]),decreasing = T),,drop=F]
 
 your answer here: 
 
----
 # Produce your own code
 
 Now you have decided to do a clinically usefull model. Your favorite clinician have told you that it would be very usefull to differenciate pancreatic adenocarcinomas and cholangiocarcinomas.
@@ -356,22 +384,30 @@ Tips: [here](https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-s
 
 #### YOUR CODE HERE ####
 # set the argument Organ 
-TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "...", 
-                         ClinicNeeded = T, MutNeeded = F, 
-                         RNANeeded = T, NormalizeRNA = T, 
-                         FunctionalAnnot = F, PDF = F, Tests=T)
+TCGAdata<-LoadcBioportal(
+  Genes=GENES,
+  Organ=c("paad|chol"),
+  ClinicNeeded=T,
+  MutNeeded=F,
+  RNANeeded=T,
+  NormalizeRNA=T,
+  FunctionalAnnot=F,
+  PDF=F,
+  Tests=T
+)
 ### END CODE ###
 ```
 
 How many patients with RNAseq data are there in each studies?
+
 ```{r}
 #### YOUR CODE HERE #### ~1 line of code
-
+table(TCGAdata$CLINIC$study)
 ### END CODE ###
-
 ```
 
 The distribution of the RNAseq data seems ok to go further with training a relevant model.
+
 ```{r}
 # Plot distribution
 hist(as.matrix(TCGAdata$EXP[TCGAdata$CLINIC$study=="paad",]),col=2,
@@ -380,12 +416,21 @@ hist(as.matrix(TCGAdata$EXP[TCGAdata$CLINIC$study=="chol",]),add=T,col=3, freq =
 
 # Plot SVD in 2D
 res.svd<-svd(TCGAdata$EXP, nu = 2, nv = 2)
-plot(res.svd$v[,1],res.svd$v[,2],col=ifelse(TCGAdata$CLINIC$study=="paad",1,2), 
-     pch=16,main='SVD per study',
-     xlab=paste("dim1 = ",100*round(res.svd$d^2/sum(res.svd$d^2),3)[1],"%",sep = ""),
-     ylab=paste("dim2 = ",100*round(res.svd$d^2/sum(res.svd$d^2),3)[2],"%",sep = ""))
-legend("bottomright",legend=c("paad","chol"), pch=16, cex=0.8,
-       col=1:2)
+plot(
+    res.svd$v[,1],
+    res.svd$v[,2],
+    col=ifelse(
+	TCGAdata$CLINIC$study=="paad",
+	1,
+	2
+    ), 
+    pch=16,
+    main='SVD per study',
+    xlab=paste("dim1 = ", 100*round(res.svd$d^2/sum(res.svd$d^2),3)[1], "%", sep=""),
+    ylab=paste("dim1 = ", 100*round(res.svd$d^2/sum(res.svd$d^2),3)[2], "%", sep=""),
+)
+
+legend("bottomright",legend=c("paad","chol"), pch=16, cex=0.8, col=1:2)
 ```
 
 Now split your cohort into training and test sets.
