@@ -64,7 +64,7 @@ model %>% compile(
 history <- model %>% fit(
     x                = x_train,
     y                = y_train,
-    epochs           = 10,
+    epochs           = 30,
     batch_size       = 128,
     validation_split = 0.2
 )
@@ -85,10 +85,3 @@ eval_test <- model %>% keras::evaluate(
 print(paste("Loss on test set:", round(eval_test$loss, 5), sep=" "))
 print(paste("Accuracy on test set:", round(eval_test$acc, 5), sep=" "))
 ```
-
-# 3. check your predictions
-```{r}
-x_test[1]
-
-```
-
