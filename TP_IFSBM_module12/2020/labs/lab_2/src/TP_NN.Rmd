@@ -28,14 +28,6 @@ Finally you will have a partial code to complete at the end of the notebook, and
 
 *--> lets' go!*
 
-## Functions
-
-```{r}
-source("../../lib/LoadcBioportal150119.R")
-
-set.seed(1234)
-```
-
 ### Keras
 Keras is a library of functions specifically dedicated to the building, training and testing of a wide range of neural networks. The math is pre-computed, and functions are relatively user-friendly: is a high level API. It can use several lower level back-ends for the math and calculation. We use the default one: Tensorflow. Tensorflow is a way to perform computations with high dimensional data, using computational graphs
 Keras and Tensorflow have been develloped by Google and are open source.
@@ -43,14 +35,20 @@ Keras and Tensorflow have been develloped by Google and are open source.
 Load and install Keras.
 
 ```{r}
+#### Load and install keras
 library(keras)
-#install_keras()
-layer_input(5)
-# help for R keras at https://keras.rstudio.com/
+#keras::install_keras()
 ```
+help for R [keras](https://keras.rstudio.com/)
 
 
 ## Data
+
+```{r}
+source("../../lib/LoadcBioportal150119.R")
+set.seed(1234)
+```
+
 Select the genes you want to use.
 ```{r}
 CGS<-read.csv("../data/CancerGeneCensusCOSMIC.csv",stringsAsFactors = F)

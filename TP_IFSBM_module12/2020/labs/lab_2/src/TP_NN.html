@@ -203,26 +203,20 @@ summary {
 <p>Pay attention: there will be some questions to answer in this notebook.</p>
 <p>Finally you will have a partial code to complete at the end of the notebook, and give it back to us.</p>
 <p><em>–&gt; lets’ go!</em></p>
-</div>
-<div id="functions" class="section level2">
-<h2>Functions</h2>
-<pre class="r"><code>source(&quot;../../lib/LoadcBioportal150119.R&quot;)
-
-set.seed(1234)</code></pre>
 <div id="keras" class="section level3">
 <h3>Keras</h3>
-<p>Keras is a library of functions specifically dedicated to the building, training and testing of a wide range of neural networks. The math is pre-computed, and functions are relatively user-friendly: is a high level API. It can use several lower level back-ends for the math and calculation. We use the default one: Tensorflow. Tensorflow is a way to perform computations with high dimensional data, using computational graphs Keras and Tensorflow have been develloped by Google and are open source. To use both with R (gold standard is to use it with python), it is recommended you install <a href="https://www.anaconda.com/distribution/#download-section">anaconda</a>. Anaconda is a python/R based environment architecture that will provide almost all what you need to run Tensorflow and Keras.</p>
-<p>Dowload Anaconda may take some time. <em>Look at the slides!</em> (computational graphs and neural nets)</p>
-<p>Then, load and install Keras.</p>
-<pre class="r"><code>library(keras)
-#install_keras()
-layer_input(5)</code></pre>
-<pre><code>## Tensor(&quot;input_1:0&quot;, shape=(None, 5), dtype=float32)</code></pre>
-<pre class="r"><code># help for R keras at https://keras.rstudio.com/</code></pre>
+<p>Keras is a library of functions specifically dedicated to the building, training and testing of a wide range of neural networks. The math is pre-computed, and functions are relatively user-friendly: is a high level API. It can use several lower level back-ends for the math and calculation. We use the default one: Tensorflow. Tensorflow is a way to perform computations with high dimensional data, using computational graphs Keras and Tensorflow have been develloped by Google and are open source.</p>
+<p>Load and install Keras.</p>
+<pre class="r"><code>#### Load and install keras
+library(keras)
+#keras::install_keras()</code></pre>
+<p>help for R <a href="https://keras.rstudio.com/">keras</a></p>
 </div>
 </div>
 <div id="data" class="section level2">
 <h2>Data</h2>
+<pre class="r"><code>source(&quot;../../lib/LoadcBioportal150119.R&quot;)
+set.seed(1234)</code></pre>
 <p>Select the genes you want to use.</p>
 <pre class="r"><code>CGS&lt;-read.csv(&quot;../data/CancerGeneCensusCOSMIC.csv&quot;,stringsAsFactors = F)
 GENES&lt;-CGS$Gene.Symbol[CGS$Hallmark==&quot;Yes&quot;]
@@ -273,7 +267,7 @@ paste(&quot;Your training and validation cohorts have &quot;,length(Train),&quot
 </div>
 <div id="model-building" class="section level2">
 <h2>Model building</h2>
-<p>Building the neural network requires configuring the layers of the model, then compiling the model.</p>
+<p>Building the neural network requires configuring the layers of the model, then compiling the model. <em>Look at the slides!</em> (computational graphs and neural nets)</p>
 <div id="setup-the-layers" class="section level3">
 <h3>Setup the layers</h3>
 <p>The basic building block of a neural network is the layer. Layers extract representations from the data fed into them. And, hopefully, these representations are more meaningful for the problem at hand. Most of deep learning consists of chaining together simple layers. Most layers, like layer_dense, have parameters that are learned during training.</p>
@@ -325,9 +319,9 @@ model %&gt;%
 <p>Next, compare how the model performs on the test dataset:</p>
 <pre class="r"><code>score &lt;- model %&gt;% evaluate(as.matrix(TCGAdata$EXP[Val,]), TCGAdata$CLINIC$study_num[Val])
 cat('Test loss:', score$loss, &quot;\n&quot;)</code></pre>
-<pre><code>## Test loss: 0.03054458</code></pre>
+<pre><code>## Test loss: 0.02725415</code></pre>
 <pre class="r"><code>cat('Test accuracy:', score$acc, &quot;\n&quot;)</code></pre>
-<pre><code>## Test accuracy: 0.9634146</code></pre>
+<pre><code>## Test accuracy: 0.9756098</code></pre>
 </div>
 <div id="make-predictions" class="section level2">
 <h2>Make predictions</h2>
@@ -335,14 +329,14 @@ cat('Test loss:', score$loss, &quot;\n&quot;)</code></pre>
 <pre class="r"><code>predictions &lt;- model %&gt;% predict(as.matrix(TCGAdata$EXP[Val,]))</code></pre>
 <p>Here, the model has predicted the label for each image in the testing set. Let’s take a look at the first prediction:</p>
 <pre class="r"><code>predictions[1, ]</code></pre>
-<pre><code>## [1] 0.02987787</code></pre>
+<pre><code>## [1] 0.02977586</code></pre>
 <p>Alternatively, we can also directly get the class prediction:</p>
 <pre class="r"><code>class_pred &lt;- model %&gt;% predict_classes(as.matrix(TCGAdata$EXP[Val,]))</code></pre>
 <pre class="r"><code>table(class_pred,TCGAdata$CLINIC$study[Val])</code></pre>
 <pre><code>##           
 ## class_pred luad lusc
-##          0   44    2
-##          1    1   35</code></pre>
+##          0   44    1
+##          1    1   36</code></pre>
 </div>
 </div>
 

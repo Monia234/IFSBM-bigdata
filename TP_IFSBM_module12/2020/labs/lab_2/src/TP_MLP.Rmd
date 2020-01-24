@@ -127,7 +127,7 @@ Your turn: initialize the weight matrix of layer L2 to L3.
 ```{r}
 #### YOUR CODE HERE ####
 InitW3<-matrix(rnorm(L2*L3),nrow = L3, ncol = L2)
-
+dim(InitW3)
 #### END CODE ####
 
 InitB3<-rep(0,L3)
@@ -153,7 +153,7 @@ Fw<-function(X,W,B){Sigmoid(X%*%t(W)+B)}
 ```
 
 ### 3.2.3 Loss function
-Define your cross entropy loss function
+Define your cross entropy loss function (=cost).
 ```{r}
 Cost<-function(Y,Yhat){ -mean(Y*log(Yhat)+(1-Y)*log(1-Yhat)) }
 ```
@@ -166,7 +166,7 @@ Check the dimensions of your data
 paste("Data dimensions :", paste( dim(X), collapse = ",") )
 ```
 
-1st layer
+1st layer:
 For the first layer: matrix multiplication of the L1 weights *InitW1* and input data *X*.
 ```{r}
 # exemple
@@ -175,13 +175,13 @@ A1<-Fw(X=X, W = W[[1]], B = B[[1]])
 paste("L1 unit dimensions :", paste(dim(A1), collapse = ",") )
 ```
 
-2nd layer
+2nd layer:
 ```{r}
 A2<-Fw(X=A1, W = W[[2]], B = B[[2]])
 dim(A2)
 ```
 
-3rd layer
+3rd layer:
 ```{r}
 Yhat<-Fw(X=A2, W = W[[3]], B = B[[3]])
 dim(Yhat)
@@ -199,10 +199,12 @@ print(paste("Cost =",Cost(Y,Yhat)))
 You can store these foward propagation into a function called *StepsFw*. It will be usefull to iterate.
 ```{r}
 StepsFw<-function(X,W,B){
+  
   A0<-X
-   A1<-Fw(X=X, W = W[[1]], B = B[[1]])
-   A2<-Fw(X=A1,W = W[[2]], B = B[[2]])
+  A1<-Fw(X=X, W = W[[1]], B = B[[1]])
+  A2<-Fw(X=A1,W = W[[2]], B = B[[2]])
   A3<-Fw(X=A2,W = W[[3]], B = B[[3]])
+  
   return(cache=list(A0=A0,A1=A1,A2=A2,A3=A3))
 }
 ```
@@ -210,13 +212,6 @@ StepsFw<-function(X,W,B){
 To run it, simply call the function as follow:
 ```{r}
 cache<-StepsFw(X,W,B)
-# the values of each units are stores in the list "cache".
-# the predictions of the model are the values of the last layer.
-Yhat<-cache[[length(cache)]]
-
-table(Y,round(Yhat))
-print(paste("Cost =",Cost(Y,Yhat)))
-
 ```
 
 # 5 Back propagation
@@ -255,7 +250,7 @@ Backprop<-function(W, B, cache, Y, Yhat, lr=0.01){
     # If not, use the derivation of the sigmoid
     if(layer==length(W)){
       # derivate the cost function
-      dZ<-derivCost(Y, Yhat)
+      dZ<-derivCost(Y=Y, Yhat=Yhat)
     } else {
       # derivate the previous layer value
       dZ<-as.matrix(derivSig(dX))
@@ -268,17 +263,18 @@ Backprop<-function(W, B, cache, Y, Yhat, lr=0.01){
     
     db<-colMeans(dZ)
 
+    # Compute the next dX
+    #dim(dZ);dim(W[[layer]])
+    dX<-dZ%*%W[[layer]]
+    #dim(dX)
+    
     # finally update your weights and biase terms from their derivative for each layer
     W[[layer]]<-W[[layer]]-lr*dW
     B[[layer]]<-B[[layer]]-lr*db
-    
-    # Compute the next dX
-    #dim(dZ);dim(W[[layer]])
-    dX <- dZ%*%W[[layer]]
-    #dim(dX)
+
   }
   
-  return(list(W=W,B=B))
+  return(list(W=W, B=B))
 }
 ```
 
@@ -298,25 +294,25 @@ train<-function(X, W, B, Y, lr=0.01, iteration=10){
   for(iter in seq(iteration)){
     
     # the foward propagation
-    cache<-StepsFw(X,W,B)
+    cache<-StepsFw(X=X, W=W, B=B)
     
     # store the cost
-    Costval<-c(Costval,Cost(Y,cache[[length(cache)]]))
+    Costval<-c(Costval, Cost(Y,cache[[length(cache)]]))
   
     # The backward propagation in a loop
-    Param<-Backprop(W=W,B=B,cache=cache,Y=Y,Yhat=cache[[length(cache)]],lr=lr)
+    Param<-Backprop(W=W, B=B, cache=cache, Y=Y, Yhat=cache[[length(cache)]], lr=lr)
     W<-Param$W
     B<-Param$B
   }
   
-  return(list(Cost=Costval,W=W,B=B))
+  return(list(Cost=Costval, W=W, B=B))
 }
 
 ```
 
 ### 2.4.3 run train function
 ```{r}
-history<-train(X,W,B,Y,lr=0.0001,iteration=100)
+history<-train(X=X, W = W, B = B, Y = Y, lr=0.0001, iteration=1000)
 ```
 
 
