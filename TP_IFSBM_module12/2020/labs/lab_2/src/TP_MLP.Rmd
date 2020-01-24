@@ -2,8 +2,8 @@
 title: "TP Multi Layer Perceptron"
 author: "L. Verlingue & Y. Pradat"
 output:
-  html_notebook: default
   html_document: default
+  html_notebook: default
 ---
 
 # What you will do in this R Notebook
