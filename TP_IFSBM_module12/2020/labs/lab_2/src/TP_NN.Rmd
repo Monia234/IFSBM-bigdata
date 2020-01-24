@@ -39,15 +39,13 @@ set.seed(1234)
 ### Keras
 Keras is a library of functions specifically dedicated to the building, training and testing of a wide range of neural networks. The math is pre-computed, and functions are relatively user-friendly: is a high level API. It can use several lower level back-ends for the math and calculation. We use the default one: Tensorflow. Tensorflow is a way to perform computations with high dimensional data, using computational graphs
 Keras and Tensorflow have been develloped by Google and are open source.
-To use both with R (gold standard is to use it with python), it is recommended you install [anaconda](https://www.anaconda.com/distribution/#download-section). Anaconda is a python/R based environment architecture that will provide almost all what you need to run Tensorflow and Keras.
 
-Dowload Anaconda may take some time. *Look at the slides!* (computational graphs and neural nets)
-
-Then, load and install Keras.
+Load and install Keras.
 
 ```{r}
 library(keras)
-install_keras()
+#install_keras()
+layer_input(5)
 # help for R keras at https://keras.rstudio.com/
 ```
 
@@ -93,6 +91,7 @@ paste("Your training and validation cohorts have ",length(Train),"&", length(Val
 
 ## Model building
 Building the neural network requires configuring the layers of the model, then compiling the model.
+*Look at the slides!* (computational graphs and neural nets)
 
 ### Setup the layers
 The basic building block of a neural network is the layer. Layers extract representations from the data fed into them. And, hopefully, these representations are more meaningful for the problem at hand.
@@ -107,7 +106,7 @@ model %>%
 
 ### print your model architecture
 ```{r}
-model
+print(model)
 ```
 
 
