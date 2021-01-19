@@ -4,7 +4,8 @@
 
 **Lieu** En ligne
 
-**Responsables** Daniel GAUTHERET (Pr, Gustave Roussy), Gaelle LELANDAIS (Pr, I2BC), Loic Verlingue (Médecin & Doctorant, GustaveRoussy).
+**Responsables** Daniel GAUTHERET (Pr, Gustave Roussy), Gaelle LELANDAIS (Pr, I2BC), Loic VERLINGUE (Médecin
+& Doctorant, GustaveRoussy).
 
 **Intervenants** Bastien JOB (Ingénieur Bioinformaticien, GustaveRoussy), Yoann PRADAT (Doctorant, CentraleSupelec),
 
