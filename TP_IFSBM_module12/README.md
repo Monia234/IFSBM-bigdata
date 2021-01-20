@@ -7,7 +7,7 @@ bref, `renv` vous permet d'isoler vos projets `R` et rend votre code facilement 
 ## Installation de `R`
 
 Assurez d'avoir une version de `R` installée sur votre ordinateur. Si vous n'êtes pas dans `RStudio`, vous pouvez
-vérifier en ligne de commande en lançant `R --version` ce qui retourne
+vérifier en ligne de commande en lançant `R --version` ce qui retourne par exemple
 
 ```
 R version 4.0.0 (2020-04-24) -- "Arbor Day"
@@ -15,8 +15,10 @@ Copyright (C) 2020 The R Foundation for Statistical Computing
 Platform: x86_64-apple-darwin18.7.0 (64-bit)
 ```
 
-Si vous n'avez pas déjà `R`, veuillez installer la dernière version de `R` disponible
-[ici](https://cran.r-project.org/) puis, si vous souhaitez utiliser Rstudio comme IDE, installez le depuis [ici](https://rstudio.com/products/rstudio/download/).
+Assurez-vous d'avoir une version de `R` relativement récente pour éviter les problèmes de compatibilité entre les
+packages. Si vous n'avez pas déjà `R`, veuillez installer la dernière version de `R` disponible
+[ici](https://cran.r-project.org/) puis, si vous souhaitez utiliser Rstudio comme IDE, installez le depuis
+[ici](https://rstudio.com/products/rstudio/download/).
 
 ## Création de l'environnement `renv`
 
