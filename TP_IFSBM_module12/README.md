@@ -21,12 +21,12 @@ Si vous n'avez pas déjà `R`, veuillez installer la dernière version de `R` di
 ## Création de l'environnement `renv`
 
 1. Veuillez cloner ce répertoire si ce n'est pas déjà fait (`git clone https://github.com/gustaveroussy/IFSBM-bigdata`).
-2. Ouvrez `RStudio` ou votre IDE préféré et placez vous dans le dossier `TPs`
-> `File > New Project >  Existing Directory > IFSBM-bigdata > TP_ISFBM_module12 > TPs`
+2. Ouvrez `RStudio` ou votre IDE préféré et placez vous dans le dossier `TP_IFSBM_module12`
+> `File > New Project >  Existing Directory > IFSBM-bigdata > TP_ISFBM_module12`
 
 ou
 
-> `cd [...]/ISFBM-bigdata/TP_IFSBM_module12 > TPs`
+> `cd [...]/ISFBM-bigdata/TP_IFSBM_module12`
 3. Depuis la console `R`, lancez la commande  `renv::restore()`.
 
 ## Utilisation des notebooks R
