@@ -6,6 +6,12 @@
 .DS_store
 .DS_Store?
 
+# asdf
+*.tool-versions
+
+# solutions
+*Solution.Rmd
+
 # Ignore these files
 *.swp
 *.log
