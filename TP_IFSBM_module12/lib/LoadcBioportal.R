@@ -1,4 +1,16 @@
-#### load TCGA data from cbioportal
+#' Load TCGA data using `cgdsr` R package interface to cBioPortal.
+#'
+#' @param Genes Character vector of gene names (HUGO symbols)
+#' @param ClinicNeeded Set to TRUE to load clinical data.
+#' @param RNANeeded Set to TRUE to load RNA data.
+#' @param MutNeeded Set to TRUE to load mutation data.
+#' @param FunctionalAnnot Set to TRUE to get annotations of the mutations.
+#' @param Organ Specify organ names to load all cancer types related to the organ. For instance, lung would load LUAD
+#' and LUSC cancer studies. Otherwise, specify TCGA cancer projects names. You can use the operator '|' to load more
+#' than one study.
+#' @param NormalizeRNA Set to TRUE to perform the normalization log((x-min(X))/(max(X)-min(X))+1) with X the vector of
+#' expression profiles of gene x for all patients.
+#' @param Tests Set to TRUE to run the test functoion of `cgdsr`.
 LoadcBioportal<-function(
                          Genes=c("TP53","KRAS"),
                          ClinicNeeded=T,
@@ -7,7 +19,6 @@ LoadcBioportal<-function(
                          FunctionalAnnot=T,
                          Organ="lung",
                          NormalizeRNA=T,
-                         PDF=F,
                          Tests=F
                          ){
   ### define function to normalise expression data
@@ -243,29 +254,29 @@ LoadcBioportal<-function(
     }
   }
 
-  # vizualization
-  if(PDF){
-    pdf("Plots.pdf")
-    #heatmap(as.matrix(EXP))
-    #VAR<-apply(EXP,2,var)
-    #barplot(sort(VAR),las=2,cex.names=0.5)
-
-    MED<-apply(EXP,2,median)
-    boxplot(EXP[,order(MED)],las=2, cex.axis=0.5,
-            main=paste("Models' genes expression \n across",Organ, "cBioportal TCGA samples"), 
-            ylab="normalized log(x+1) expression")
-    MUT1<-MUT
-    MUT1[which(MUT=="NaN",arr.ind = T)]<-NA
-    MUT1<-apply(MUT1,1,is.na)
-    GN<-apply(MUT1,1,function(x){table(x)["FALSE"]})
-    MUT1<-MUT1[order(GN, na.last = F),]
-    PN<-apply(MUT1,2,function(x){table(x)["FALSE"]})
-    MUT1<-MUT1[,order(PN)]
-    image(t(MUT1),col=c(1,0), main ="Pattern of mutations", axes=F)
-    axis(2,at = seq(0,1,length.out = nrow(MUT1)),labels = rownames(MUT1),cex.axis=0.3,las=2,tick = F)
-
-    dev.off()
-  }
-
   return(list(MUT=MUT,EXP=EXP,CLINIC=CLINIC, STUDY=Study))
 }
+
+#   # vizualization
+#   if(PDF){
+#     pdf("Plots.pdf")
+#     #heatmap(as.matrix(EXP))
+#     #VAR<-apply(EXP,2,var)
+#     #barplot(sort(VAR),las=2,cex.names=0.5)
+# 
+#     MED<-apply(EXP,2,median)
+#     boxplot(EXP[,order(MED)],las=2, cex.axis=0.5,
+#             main=paste("Models' genes expression \n across",Organ, "cBioportal TCGA samples"), 
+#             ylab="normalized log(x+1) expression")
+#     MUT1<-MUT
+#     MUT1[which(MUT=="NaN",arr.ind = T)]<-NA
+#     MUT1<-apply(MUT1,1,is.na)
+#     GN<-apply(MUT1,1,function(x){table(x)["FALSE"]})
+#     MUT1<-MUT1[order(GN, na.last = F),]
+#     PN<-apply(MUT1,2,function(x){table(x)["FALSE"]})
+#     MUT1<-MUT1[,order(PN)]
+#     image(t(MUT1),col=c(1,0), main ="Pattern of mutations", axes=F)
+#     axis(2,at = seq(0,1,length.out = nrow(MUT1)),labels = rownames(MUT1),cex.axis=0.3,las=2,tick = F)
+# 
+#     dev.off()
+#   }
