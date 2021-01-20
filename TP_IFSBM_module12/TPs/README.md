@@ -33,4 +33,4 @@ ou
 
 Les  *R notebooks* sont des documents R Markdown (*.Rmd*) avec des parties textuelles et des parties de code R 
 (appelées *chunks*) qui peuvent être exécutées de manière indépendente et interactive. Une introduction à leur
-utilisation est incluse dans le premier TP (cf `lab_1/src/TP_MachineLearning.Rmd`).
+utilisation est incluse dans le premier TP (cf `R_TP1/src/TP_MachineLearning.Rmd`).
