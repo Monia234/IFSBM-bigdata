@@ -4,6 +4,7 @@
 .Rhistory
 .RData
 .DS_store
+.DS_Store?
 
 # Ignore these files
 *.swp
@@ -11,9 +12,16 @@
 *.aux
 *.out
 
-# Ignore all packrat except packrat.lock and src
-TP_IFSBM_module12/2020/labs/packrat/lib/
-TP_IFSBM_module12/2020/labs/packrat/lib-R/
-TP_IFSBM_module12/2020/labs/packrat/lib-ext/
-TP_IFSBM_module12/2020/labs/packrat/packrat.opts
-.Rproj.user
+# Open cached files
+*.m~
+*.*swp
+*.*swo
+*.~
+
+# Compiled sources
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
