@@ -1,0 +1,337 @@
+---
+title: "TP Multi Layer Perceptron"
+author: "L. Verlingue & Y. Pradat"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+# What you will do in this R Notebook
+
+## 1.1 Introduction
+This is the second day of your training in R for Machine Learning. You will now enter the wide, wild and exciting field of Deep Learning!
+
+Neural Networks and Deep Learning have revolutionized the performance of many Machine Learning tasks: in image analysis, gaming and natural langage understanding, for example.
+
+This notebook will introduce you to the basic functions of a simple type of neural network: a multilayer perceptron (MLP). 
+
+I hope you'll enjoye this Notebook and that it can help you to adress your current and/or future challenges.
+
+## 1.2 Main steps
+After loading TCGA data, we will build and train a simple neural network.
+
+## 1.3 In practice
+The code is provided to you. You will just have to follow the instructions all along the Notebook.
+I'll give you a little bit of explanation when needed. 
+
+Pay attention: there will be some questions to answer in this notebook.
+
+*look at the slides to warm up*
+
+## 1.3 Functions
+
+```{r}
+source("../../lib/LoadcBioportal150119.R")
+
+set.seed(1234)
+```
+
+
+# 2 Data
+Select the genes you want to use.
+
+```{r}
+CGS<-read.csv("../data/CancerGeneCensusCOSMIC.csv",stringsAsFactors = F)
+GENES<-CGS$Gene.Symbol[CGS$Hallmark=="Yes"]
+print(paste("You have selected",length(GENES),"important cancer genes like:", paste(sample(GENES,20), collapse = ", "), "..."))
+```
+
+Dowload TCGA data from the LoadcBioportal that you know.
+
+```{r}
+# load TCGA data of lung adenocarcinoma and lung squamous cell carcinoma
+
+# set the argument Organ 
+TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|gbm", 
+                         ClinicNeeded = T, MutNeeded = F, 
+                         RNANeeded = T, NormalizeRNA = T, 
+                         FunctionalAnnot = F, PDF = F, Tests=T)
+STUDY<-TCGAdata$STUDY
+print("Here are your patients' numbers:")
+print(table(TCGAdata$CLINIC$study))
+```
+
+Warm up by printing a little part of the expression data you have loaded (not the full table!!!)
+```{r}
+#### YOUR CODE HERE ####
+
+#### END CODE ####
+
+```
+
+## 2.2 Split the data
+
+You are now familliar with splitting your data.
+
+```{r}
+TrainSplit=0.8
+Train<-sample(seq(nrow(TCGAdata$CLINIC)),size = round(nrow(TCGAdata$CLINIC)*TrainSplit) )
+Val<-seq(nrow(TCGAdata$CLINIC))[!seq(nrow(TCGAdata$CLINIC))%in%Train]
+paste("Your training and validation cohorts have ",length(Train),"&", length(Val), "patients.")
+```
+
+## 2.3 Input data
+You will be performing matrix calculation, so turn your data into matrices, and rpint its dimensions.
+```{r}
+X<-as.matrix(TCGAdata$EXP[Train,])
+dim(X)
+```
+
+## 2.4 Output label
+Idem for outputs that should be numerical.
+```{r}
+Y<-as.matrix(as.numeric(as.factor(TCGAdata$CLINIC$study[Train]))-1)
+head(Y)
+```
+
+# 3 Design your model
+
+We want to do a 3 layer MLP. Let's define the number of units per layer.
+```{r}
+# 3 layer MLP
+L1=128
+L2=30
+L3=1
+```
+
+You want to know what happened? *look at the slides*
+
+## 3.1 Initialize
+
+Random initialisation of the weights for each layers. The following weight matrix are detailed, one by one. Dimension are *n,m* (N units layer L, N units layer L-1).
+Weight matrix of layer input data to L1.
+```{r}
+InitW1<-matrix(rnorm(dim(X)[2]*L1),nrow = L1 , ncol = dim(X)[2] )
+dim(InitW1)
+InitB1<-rep(0,L1)
+```
+
+Weight matrix of layer L1 to L2.
+```{r}
+InitW2<-matrix(rnorm(L1*L2),nrow = L2, ncol = L1)
+dim(InitW2)
+InitB2<-rep(0,L2)
+```
+
+Your turn: initialize the weight matrix of layer L2 to L3.
+```{r}
+#### YOUR CODE HERE ####
+InitW3<-matrix(rnorm(L2*L3),nrow = L3, ncol = L2)
+dim(InitW3)
+#### END CODE ####
+
+InitB3<-rep(0,L3)
+```
+
+Finaly, store your weight matrices and beta vectors in a list.
+```{r}
+W<-list(InitW1, InitW2, InitW3)
+B<-list(InitB1, InitB2, InitB3)
+```
+
+## 3.2 Functions
+### 3.2.1 Activation function
+Set your activation function: here we have chosed sigmoid update.
+```{r}
+Sigmoid<-function(z){1/(1+exp(-z))}
+```
+
+### 3.2.2 Update function
+Set your update function.
+```{r}
+Fw<-function(X,W,B){Sigmoid(X%*%t(W)+B)}
+```
+
+### 3.2.3 Loss function
+Define your cross entropy loss function (=cost).
+```{r}
+Cost<-function(Y,Yhat){ -mean(Y*log(Yhat)+(1-Y)*log(1-Yhat)) }
+```
+
+# 4 Foward propagation
+
+## 4.1 step by step
+Check the dimensions of your data
+```{r}
+paste("Data dimensions :", paste( dim(X), collapse = ",") )
+```
+
+1st layer:
+For the first layer: matrix multiplication of the L1 weights *InitW1* and input data *X*.
+```{r}
+# exemple
+paste("WL1 dimensions :", paste( dim(InitW1), collapse = ",") )
+A1<-Fw(X=X, W = W[[1]], B = B[[1]])
+paste("L1 unit dimensions :", paste(dim(A1), collapse = ",") )
+```
+
+2nd layer:
+```{r}
+A2<-Fw(X=A1, W = W[[2]], B = B[[2]])
+dim(A2)
+```
+
+3rd layer:
+```{r}
+Yhat<-Fw(X=A2, W = W[[3]], B = B[[3]])
+dim(Yhat)
+```
+
+
+Visualize the confusion matrix and the cost.
+```{r}
+table(Y,round(Yhat))
+print(paste("Cost =",Cost(Y,Yhat)))
+```
+
+
+## 4.2 In a function
+You can store these foward propagation into a function called *StepsFw*. It will be usefull to iterate.
+```{r}
+StepsFw<-function(X,W,B){
+  
+  A0<-X
+  A1<-Fw(X=X, W = W[[1]], B = B[[1]])
+  A2<-Fw(X=A1,W = W[[2]], B = B[[2]])
+  A3<-Fw(X=A2,W = W[[3]], B = B[[3]])
+  
+  return(cache=list(A0=A0,A1=A1,A2=A2,A3=A3))
+}
+```
+
+To run it, simply call the function as follow:
+```{r}
+cache<-StepsFw(X,W,B)
+```
+
+# 5 Back propagation
+
+As presented in the lecture, you have to compute the derivations of the loss given the parameters of the model. This uses the chain rule of calculus. Every step of the computational graph are derived step by step up to the parameters.
+Several conventional steps are encoded in the following functions.
+There is a trick to compute the derivate of the categorical cross entropy (logistic cost) given the value z (the results of the linear function before activation)!
+
+## 5.1 derivate of cost (=loss): dZ/DL
+This is the trick:
+```{r}
+derivCost<-function(Y,Yhat){ (Yhat - Y) }
+```
+
+## 5.2 derivate of sigmoid
+```{r}
+derivSig<-function(z){Sigmoid(z)*(1-Sigmoid(z))}
+```
+
+## 5.3 set learning rate
+An important hyperparameter!
+```{r}
+lr=0.01
+```
+
+## 5.4 Design a function for the foward propagation
+Stack together your derivates into a chain rule function.
+A loop is necessary to difuse the gradient layer by layer up to the first layer units of your neural net.
+
+```{r}
+Backprop<-function(W, B, cache, Y, Yhat, lr=0.01){
+  
+  for(layer in rev(seq(length(W)))){ # rev is used to do a sequence from last layer to first layer: c(3,2,1)
+    
+    # For the first step back (layer 3), you can use the derivation of the cost. 
+    # If not, use the derivation of the sigmoid
+    if(layer==length(W)){
+      # derivate the cost function
+      dZ<-derivCost(Y=Y, Yhat=Yhat)
+    } else {
+      # derivate the previous layer value
+      dZ<-as.matrix(derivSig(dX))
+    }
+    
+    # Next, derivate up to the weights and biase terms 
+    
+    #dim(dZ);dim(cache[[layer]])
+    dW<-t(dZ)%*%cache[[layer]]
+    
+    db<-colMeans(dZ)
+
+    # Compute the next dX
+    #dim(dZ);dim(W[[layer]])
+    dX<-dZ%*%W[[layer]]
+    #dim(dX)
+    
+    # finally update your weights and biase terms from their derivative for each layer
+    W[[layer]]<-W[[layer]]-lr*dW
+    B[[layer]]<-B[[layer]]-lr*db
+
+  }
+  
+  return(list(W=W, B=B))
+}
+```
+
+
+# 6 Learning
+
+## 6.1 Iterate on Foward and Back propagations
+
+We may want to test several hyper-parameters of our learning. Therefore it is usefull to set a function for the training. 
+The train function iterates on Foward and Back propagations and learns little by little. It returns the cost for each iteration (learning curve), and the optimized weigths and bias terms.
+
+```{r}
+#turn a foward + backward pass into a function
+train<-function(X, W, B, Y, lr=0.01, iteration=10){
+  Costval<-vector()
+  
+  for(iter in seq(iteration)){
+    
+    # the foward propagation
+    cache<-StepsFw(X=X, W=W, B=B)
+    
+    # store the cost
+    Costval<-c(Costval, Cost(Y,cache[[length(cache)]]))
+  
+    # The backward propagation in a loop
+    Param<-Backprop(W=W, B=B, cache=cache, Y=Y, Yhat=cache[[length(cache)]], lr=lr)
+    W<-Param$W
+    B<-Param$B
+  }
+  
+  return(list(Cost=Costval, W=W, B=B))
+}
+
+```
+
+### 2.4.3 run train function
+```{r}
+history<-train(X=X, W = W, B = B, Y = Y, lr=0.0001, iteration=1000)
+```
+
+
+### 2.4.4 check results
+```{r}
+plot(history$Cost,type = "l", ylab = "Cost", xlab = "iterations")
+```
+
+
+```{r}
+cache<-StepsFw(X,history$W,history$B)
+table(Y,round(cache[[4]]))
+Cost(Y,cache[[4]])
+```
+
+```{r}
+image(InitW1)
+image(history$W[[1]])
+```
+
+
+---

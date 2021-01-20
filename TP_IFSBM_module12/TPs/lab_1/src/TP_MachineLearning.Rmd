@@ -1,0 +1,136 @@
+---
+title: "TP I FSBM UE 12: Big Data and predictive models"
+subtitle: "Introduction to machine learning."
+author:
+  - Loic Verlingue, Md, PhDc loic.verlingue@gustaveroussy.fr
+  - Yoann Pradat, PhDc yoann.pradat@centralesupelec.fr
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_float: true
+    code_folding: show
+  rmdformats::material:
+    highlight: kate
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
+```{r, echo = FALSE, out.width = '50%', fig.align="center"}
+knitr::include_graphics('../../img/ifsbm_logo.jpeg')
+```
+
+# 1. What you will do in this R Notebook
+
+## 1.1 Introduction
+With this notebook you will work on **real cancer genomic data** to address clinical questions.  The problem can be
+summarized this way: your input is a huge amount of variables, such as DNA or RNA sequences for each patient, that you
+wish to use in order to provide the clinician with a simple information that he can use for his patients.
+
+The main challenge is how to **reduce information so that it becomes understandable a for a human**. That is a central objective in many machine learning projects.
+
+Extracting biomedical knowledge from high-dimensional molecular data is currently part of the main challenges of
+personalized medecine, so let's hope you'll enjoy this introductive notebook and that it can help you to address your current and/or future research challenges.
+
+## 1.2 Main steps
+
+In this notebook, you will be guided through TCGA data. We shall download only parts of the data in order to be able to
+run jobs within a reasonable amount of time. To achieve this we will try to make the most of prior biomedical research
+and reduce our queries to most relevant genes. 
+
+In a first step we will implement simple modelling strategies to perform a classification task from expression data.
+In a second step, if there is enough for it, we will try to run a survival analysis so as to give you a general idea of
+the challenges of such analyses. 
+
+It is where the current science stands! To go further you'll have to become a researcher in bioinformatics and machine learning. 
+
+## 1.3 In practice
+
+The code is provided to you. You will just have to follow the instructions all along the notebook.
+Explanations and corrections will be given throughout the notebook for a subset of the questions.
+
+**IMPORTANT**
+There are questions in this notebook that you need to answer and code that you need to write by yourself during the lab
+or at home. The ones you have to do during the lab are be indicated by a tag "INCLASS WORK", and the ones you have to
+after the class are indicated by "HOME WORK". 
+
+You will have to **complete both** and send the completed notebooks back to us. These completed notebooks will be
+used for evaluating your work in this module and give you a mark.
+
+# 2 Get familiar with R notebooks
+
+## 2.1 What is an R notebook
+
+An  *R notebook* is an R Markdown document (*.Rmd*) with text parts and R code parts (called *chunks*) that can be
+executed independently and interactively. R notebooks can be rendered (or knit) into different formats (*.pdf*, *.html*,
+*.docx*) using a renderer.  The `rmarkdown` R package ([see doc
+here](https://cran.r-project.org/web/packages/rmarkdown/rmarkdown.pdf)) provides a lot of functions to render a
+notebook. 
+
+Running `render('TP_MachineLearning.Rmd', html_document())` from the R console will create a
+file *TP_MachineLearning.html*  that you can then open with your favorite web browser. 
+
+`RStudio` already provides you with commands to render your R notebook by taking into accounts the headers that are
+specified at the top of document. You can knit your notebook with the `Preview` button or by pressing `Ctrl+Shift+K` (OS X: `Cmd+Shift+K`).
+
+Here is an example of YAML headers for specifying the output format.
+
+```yaml
+title: Nineteen Years Later
+author: Harry Potter
+date: July 31, 2016
+output:
+  rmarkdown::html_document:
+    theme: lumen
+```
+
+## 2.2 Execute code your first **chunk**
+
+Try executing the following chunk by clicking the `Run` button within the chunk or by placing your cursor inside it and
+pressing `Ctrl+Enter` from within `R Studio`.
+
+```{r}
+print("Welcome to 'Big Data et predictive models' lab session")
+```
+
+In order to create a new chunk, open it with "\`\`\`{r}" and close it with "\`\`\`". Alternatively, press `Ctrl + Alt + I` (OS X:` Cmd + Option + I`) or the Add Chunk button in the tool bar of `R Studio`. Chunks rendering can by customized by specifying chunk options among the following
+
+- `include = FALSE` prevents code and results from appearing in the finished file. R Markdown still runs the code in the chunk, and the results can be used by other chunks.
+- `echo = FALSE` prevents code, but not the results from appearing in the finished file. This is a useful way to embed figures.
+- `message = FALSE` prevents messages that are generated by code from appearing in the finished file.
+- `warning = FALSE` prevents warnings that are generated by code from appearing in the finished.
+- `fig.cap = "..."` adds a caption to graphical results.
+- `fig.width = 4` width of the graphical results
+- `fig.height = 3` height of the graphical results
+- `fig.align = center` height of the graphical results
+- `dev = "png"` the graphical device to generate plots
+- ...
+
+Options can also be set from within the chunk using the syntax `knitr::opts_chunk$set(fig.width = 6, fig.height = 6)`
+for instance. For more details about chunk options, see the online documentation
+[https://yihui.org/knitr/options/](https://yihui.org/knitr/options/).
+
+
+*Pratical info*: A list of all the keyboard shortcuts for `Rstudio` is available
+[here](https://support.rstudio.com/hc/en-us/articles/200711853-Keyboard-Shortcuts).
+
+
+&nbsp;
+  
+**INCLASS WORK**: Create an `R` chunk that displays a plot of the cosinus and sinus functions on $[-\pi, \pi]$
+withouth showing the code, with a caption, with a width and height of 8 and 4 respectively. The plot should additionally
+be centered.
+
+```{r, echo=FALSE, fig.cap="Cosinus and sinus plot", fig.height=4, fig.width=8, fig.align="center"}
+x <- seq(-pi, pi, length.out=100)
+ycos <- cos(x)
+ysin <- sin(x)
+plot(x, ycos)
+lines(x, ysin)
+```
+
+# 3. Classification using expression data.

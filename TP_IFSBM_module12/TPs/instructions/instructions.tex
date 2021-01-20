@@ -1,0 +1,116 @@
+\documentclass[a4paper, 11pt]{article}
+
+\usepackage[utf8]{inputenc} %% Input encoding: Translates input encodings into LaTex internal language.
+\usepackage[T1]{fontenc}    %% Font encoding: Default is 7-bit OT1 while T1 is 8-bit
+\usepackage[british]{babel} %% Hyphenation patterns. Default english is US english
+\usepackage{hyperref}       %% Produce hypertext links.
+\usepackage{datetime}       %% For specifying manual data
+
+%%%% Libraries and parameters for inline R code
+\usepackage{color}
+\usepackage{listings}
+{\lstset{%
+  basicstyle=\small\ttfamily,
+  commentstyle=\color{red},
+  showspaces=false,
+  tabsize=2,
+  keywordstyle=\color{black},
+  showstringspaces=false}
+}
+\lstset{language=R}                                                                 %% Set R to default language
+\lstnewenvironment{rc}[1][]{\lstset{language=R}}{}                                  %% R chunk of code
+\newcommand{\ri}[1]{\lstinline{#1}}                                                 %% Short for 'R inline'
+\newdate{date}{24}{01}{2020}
+
+\begin{document}
+\title{Installation Instructions for Lab 1 and Lab 2 “Big data and predictive models”}
+\author{Y. Pradat (MICS, CentraleSupelec),\\L. Verlingue (Institut Gustave Roussy)\\D. Gautheret (Institut Gustave 
+Roussy)}
+\date{\displaydate{date}}
+\maketitle
+
+The following document is a notice for installing the programming tools you will need in order to put into praticse the 
+algorithms you saw in the classes. In brief, many different models exists, from the simple linear-regression to the more 
+elaborate deep learning models that are parametrized by hundreds of thousands or even millions of parameters.
+In order to implement these models, we shall use code that has been developed by other people and which reduces the task 
+to a handful of lines of code.  This code is available in the form of \textbf{libraries}, some of which you may already 
+have installed and some that you may not.
+
+\section{Git \& GitHub}
+
+\subsection{Git install}
+
+\textbf{Git} is “a distributed version-control system for tracking changes in source code during software development”.  
+In other words, it is a very popular tool that allow to efficiently keep track of different versions of files (code, 
+text, images, etc.) so that you may revert to \textit{any previous version} without any hassle. It is also extremely 
+complete and resourceful for team projects that involve some sort of code collaboration (as for the preparation of the 
+labs you will follow). \\ 
+
+\textbf{If you do not have Git installed} on your computer, please install it following the instructions provided 
+\href{https://git-scm.com/book/en/v2/Getting-Started-Installing-Git}{here} according to your operating system. Once Git 
+is installed, you should have access to a \textit{Git bash} on Windows while a bash (command-line interface) is already 
+available on Linux\&MacOS systems.  \textbf{Please check} that the bash command
+\begin{lstlisting}[language=bash]
+git --version
+\end{lstlisting}
+gives you the version of Git installed on your machine.
+
+\subsection{GitHub explained}
+
+\textbf{GitHub} is a company that provides hosting services (in the form of a platform www.github.com) with version 
+control using Git. If you do not already have a GitHub account, please sign up at \href{www.github.com}{GitHub}. Once 
+this is done, you may download (\textit{clone} in Git language) any \textit{repository} available to you on GitHub, i.e 
+public repositories or repositories to which you have been granted access.\\ 
+
+The repository for the labs 1 and 2 of “Big data and predictive models” is available at 
+\href{https://github.com/gustaveroussy/IFSBM-bigdata}{https://github.com/gustaveroussy/IFSBM-bigdata}. From the bash 
+interface, change directory (using the command \texttt{cd}) to whichever location on your machine where you want to have 
+the folder for the labs.  Then, \textbf{execute} 
+\begin{lstlisting}[language=bash]
+git clone https://github.com/gustaveroussy/IFSBM-bigdata
+\end{lstlisting}
+
+\section{Installation of an R environment}
+
+In order to follow the next instructions, \textbf{please open} \texttt{Rstudio} and then \texttt{File > New Project > 
+Existing Directory > IFSM-bigdata/TP\_IFSBM\_module12/2020/labs > create project}.  This sets the \textit{working 
+directory} to \texttt{labs} and creates a \texttt{labs.Rproj} in the folder with settings used by \texttt{Rstudio}.  
+Otherwise, use a command-line interface (bash) located at the folder previously specified.
+\\
+
+In order to facilitate the management of \texttt{R} libraries, we use 
+\href{https://rstudio.github.io/packrat/}{\textbf{packrat}}. In short, packrat makes R projects more isolated, more 
+portable and \textit{reproducible}. In the folder \texttt{labs} you have a subfolder named \texttt{packrat} which 
+contains the source code (in \texttt{packrat/src}) and binaries (in \texttt{packrat/lib}, \texttt{packrat/lib-R}, 
+\texttt{packrat/lib-ext}) of all the libraries we shall need for the labs. 
+
+You can recreate the environment with all the required libraries with \textit{one of the following}
+\begin{itemize}
+  \item (Rstudio console): \ri{packrat::restore()}
+  \item (Bash from the folder labs/ - Please make sure the R interpreter used here is the same as the R interpreter you 
+    use in Rstudio):
+    \begin{rc}
+      R -e ``packrat::restore()''
+    \end{rc}
+\end{itemize}
+
+\section{Install Keras \& Test}
+
+\textbf{Keras} is an open source \textit{neural network library} written in Python. It is also available in R through a 
+wrapper described \href{https://keras.rstudio.com/}{here}. For you to be able to use keras, you shall execute the R 
+comand \ri{keras::install\_keras()}. \textbf{This has already been written for you in the example} Rmarkdown 
+\texttt{labs/lab\_2/src/TP\_example.Rmd}. Please do \textit{one of the following} to run the example file so that you 
+can test your installation:
+
+\begin{itemize}
+  \item (Rstudio console): Use the \texttt{Knit} button to generate a html rendering of the Rmarkdown.  \item (Bash from 
+    the folder \texttt{labs/}): Run the associated R script.
+    \begin{rc}
+      Rscript lab_2/src/TP_example.R
+    \end{rc}
+\end{itemize}
+You are more than welcome to look at the code (in the html or in the Rmd) so as to understand how a \textit{neural net 
+architecture} may be implemented with \textbf{keras}.
+
+\end{document}
+

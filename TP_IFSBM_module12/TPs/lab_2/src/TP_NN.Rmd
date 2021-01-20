@@ -1,0 +1,168 @@
+---
+title: "TP_NN"
+author: "Loic Verlingue"
+date: "13 janvier 2020"
+output: html_document
+---
+# What you will do in this R Notebook
+
+## Introduction
+This is the second day of your training in R for Machine Learning. You will now enter the wide, wild and exciting field of Deep Learning!
+
+Neural Networks and Deep Learning have revolutionized the performance of many Machine Learning tasks: in image analysis, gaming and natural langage understanding, for example.
+
+Again your input is a huge amount of variables (genes expression per patients) and you want to provide the clinician a simple output that he can use for his patients.
+
+I hope you'll enjoye this Notebook and that it can help you to adress your current and/or future challenges.
+
+## Main steps
+After loading TCGA data, we will build and train a simple neural network.
+
+## In practice
+The code is provided to you. You will just have to follow the instructions all along the Notebook.
+I'll give you a little bit of explanation when needed. 
+
+Pay attention: there will be some questions to answer in this notebook.
+
+Finally you will have a partial code to complete at the end of the notebook, and give it back to us.
+
+*--> lets' go!*
+
+### Keras
+Keras is a library of functions specifically dedicated to the building, training and testing of a wide range of neural networks. The math is pre-computed, and functions are relatively user-friendly: is a high level API. It can use several lower level back-ends for the math and calculation. We use the default one: Tensorflow. Tensorflow is a way to perform computations with high dimensional data, using computational graphs
+Keras and Tensorflow have been develloped by Google and are open source.
+
+Load and install Keras.
+
+```{r}
+#### Load and install keras
+library(keras)
+#keras::install_keras()
+```
+help for R [keras](https://keras.rstudio.com/)
+
+
+## Data
+
+```{r}
+source("../../lib/LoadcBioportal150119.R")
+set.seed(1234)
+```
+
+Select the genes you want to use.
+```{r}
+CGS<-read.csv("../data/CancerGeneCensusCOSMIC.csv",stringsAsFactors = F)
+GENES<-CGS$Gene.Symbol[CGS$Hallmark=="Yes"]
+print(paste("You have selected",length(GENES),"important cancer genes like:", paste(sample(GENES,20), collapse = ", "), "..."))
+```
+
+Dowload TCGA data from the LoadcBioportal that you know.
+```{r}
+# load TCGA data of lung adenocarcinoma and lung squamous cell carcinoma
+
+#### YOUR CODE HERE ####
+# set the argument Organ 
+TCGAdata<-LoadcBioportal(Genes = GENES, Organ = "luad|lusc", 
+                         ClinicNeeded = T, MutNeeded = F, 
+                         RNANeeded = T, NormalizeRNA = T, 
+                         FunctionalAnnot = F, PDF = F, Tests=T)
+STUDY<-TCGAdata$STUDY
+print("Here are your patients' numbers:")
+print(table(TCGAdata$CLINIC$study))
+```
+
+```{r}
+dim(TCGAdata$EXP)
+```
+```{r}
+TCGAdata$CLINIC$study_num<-as.numeric(as.factor(TCGAdata$CLINIC$study))-1
+```
+
+
+## Split the data
+```{r}
+TrainSplit=0.8
+Train<-sample(seq(nrow(TCGAdata$CLINIC)),size = round(nrow(TCGAdata$CLINIC)*TrainSplit) )
+Val<-seq(nrow(TCGAdata$CLINIC))[!seq(nrow(TCGAdata$CLINIC))%in%Train]
+paste("Your training and validation cohorts have ",length(Train),"&", length(Val), "patients.")
+```
+
+## Model building
+Building the neural network requires configuring the layers of the model, then compiling the model.
+*Look at the slides!* (computational graphs and neural nets)
+
+### Setup the layers
+The basic building block of a neural network is the layer. Layers extract representations from the data fed into them. And, hopefully, these representations are more meaningful for the problem at hand.
+Most of deep learning consists of chaining together simple layers. Most layers, like layer_dense, have parameters that are learned during training.
+```{r}
+model <- keras_model_sequential()
+model %>%
+  layer_dense(input_shape = 250, units = 128, activation = 'relu') %>%
+  layer_dense(units = 30, activation = 'relu') %>%
+  layer_dense(units = 1, activation = 'sigmoid')
+```
+
+### print your model architecture
+```{r}
+print(model)
+```
+
+
+### Compile the model
+Before the model is ready for training, it needs a few more settings. These are added during the model's compile step:
+
+Loss function - This measures how accurate the model is during training. We want to minimize this function to "steer" the model in the right direction.
+Optimizer - This is how the model is updated based on the data it sees and its loss function.
+Metrics -Used to monitor the training and testing steps. The following example uses accuracy, the fraction of the images that are correctly classified.
+```{r}
+model %>% compile(
+  optimizer = 'adam', 
+  loss = 'mse',
+  metrics = c('accuracy')
+)
+```
+
+
+## Model training
+Training the neural network model requires the following steps:
+
+Feed the training data to the model - in this example, the train_images and train_labels arrays.
+The model learns to associate images and labels.
+We ask the model to make predictions about a test set - in this example, the test_images array. We verify that the predictions match the labels from the test_labels array.
+To start training, call the fit method - the model is "fit" to the training data:
+
+```{r}
+model %>% fit(as.matrix(TCGAdata$EXP[Train,]),TCGAdata$CLINIC$study_num[Train], epochs = 100, validation_split = 0.2, shuffle = FALSE)
+```
+
+As the model trains, the loss and accuracy metrics are displayed. This model reaches an accuracy of about XX on the training data.
+
+## Evaluate accuracy
+Next, compare how the model performs on the test dataset:
+```{r}
+score <- model %>% evaluate(as.matrix(TCGAdata$EXP[Val,]), TCGAdata$CLINIC$study_num[Val])
+cat('Test loss:', score$loss, "\n")
+cat('Test accuracy:', score$acc, "\n")
+```
+
+## Make predictions
+With the model trained, we can use it to make predictions about some new data.
+```{r}
+predictions <- model %>% predict(as.matrix(TCGAdata$EXP[Val,]))
+```
+
+Here, the model has predicted the label for each image in the testing set. Let's take a look at the first prediction:
+
+```{r}
+predictions[1, ]
+```
+
+
+Alternatively, we can also directly get the class prediction:
+```{r}
+class_pred <- model %>% predict_classes(as.matrix(TCGAdata$EXP[Val,]))
+```
+
+```{r}
+table(class_pred,TCGAdata$CLINIC$study[Val])
+```

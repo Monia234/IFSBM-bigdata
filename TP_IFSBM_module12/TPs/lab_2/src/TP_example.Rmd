@@ -1,0 +1,87 @@
+---
+title: "Deep-Learning for R: Keras on MNIST"
+author: "Y. Pradat"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    theme: readable
+    toc: true
+    toc_float: true
+    code_folding: show
+  rmdformats::material:
+    highlight: kate
+---
+
+```{r load.keras}
+#### Load and install keras
+library(keras)
+keras::install_keras()
+```
+
+# 1. Prepare the data
+
+```{r load.data}
+mnist   <- keras::dataset_mnist()
+x_train <- mnist$train$x          # 3d array (60000,28,28)
+y_train <- mnist$train$y          # 1d array (60000)
+x_test  <- mnist$test$x           # 3d array (10000,28,28)
+y_test  <- mnist$test$y           # 1d array (60000)
+
+#### reshape, rescale and one-hot encode
+x_train <- keras::array_reshape(x_train, c(nrow(x_train), 784))
+x_test  <- keras::array_reshape(x_test, c(nrow(x_test), 784))
+x_train <- x_train/255
+x_test  <- x_test/255
+y_train <- keras::to_categorical(y_train, 10)
+y_test  <- keras::to_categorical(y_test, 10)
+```
+
+# 2. Define the model
+
+```{r model}
+#### define the architecture
+model <- keras::keras_model_sequential()
+model %>%
+    layer_dense(units=256, activation='relu', input_shape=c(784)) %>%
+    layer_dropout(rate=0.4) %>%
+    layer_dense(units=128, activation='relu') %>%
+    layer_dropout(rate=0.3) %>%
+    layer_dense(units=10, activation='softmax')
+summary(model)
+
+#### compile the model - specify the loss, the metric and the optimizer
+model %>% compile(
+    loss      = 'categorical_crossentropy',
+    optimizer = keras::optimizer_rmsprop(),
+    metrics   = c('accuracy')
+)
+```
+
+# 3. Training and evaluation
+
+```{r fit}
+####
+history <- model %>% fit(
+    x                = x_train,
+    y                = y_train,
+    epochs           = 30,
+    batch_size       = 128,
+    validation_split = 0.2
+)
+```
+
+```{r curves, fig.width=9, fig.height=10, results="asis"}
+#### training curves
+plot(history)
+```
+
+```{r eval}
+#### get loss and accuracy on the test set
+eval_test <- model %>% keras::evaluate(
+    x       = x_test,
+    y       = y_test,
+    verbose = 0
+)
+print(paste("Loss on test set:", round(eval_test$loss, 5), sep=" "))
+print(paste("Accuracy on test set:", round(eval_test$acc, 5), sep=" "))
+```
