@@ -68,11 +68,13 @@ et verrez des applications de ces méthodes sur des données publiques.
 |  Heure  | Jeudi 21 janvier 2021 |
 | ----------- | :-----------------------------------------------: |
 | 09:00-10:15 | Pourquoi utiliser les méthodes d'apprentissage auomatique en oncologie ? |
-| 10:30-12:00 | Introduction méthodes d'apprentissage. |
+| 10:30-11:30 | Introduction méthodes d'apprentissage. |
+| 11:30-12:00 | Example of research projects. |
 | 13:30-17:00 | TP I: Apprentissage statistique sur des données d'expression du TCGA. |
 
 |  Heure  | Vendredi 22 janvier 2021 |
 | ----------- | :-----------------------------------------------: |
-| 09:00-10:15 | Applications du deep learning en oncologie |
-| 10:30-12:00 | Introduction méthodes Deep Learning |
+| 09:00-10:15 | Applications du deep learning en oncologie. |
+| 10:30-11:30 | Introduction méthodes Deep Learning. |
+| 11:30-12:00 | Example of research projects. |
 | 13:30-17:00 | TP II: Construire son premier réseau de neurones avec Keras. |
