@@ -228,22 +228,6 @@ function.
 # YOUR WORK HERE
 ```
 
-```{r}
-CgcTable <- read.csv("../data/CancerGeneCensusCOSMIC_20210120.csv")
-CgcGenes <- CgcTable$Gene.Symbol
-
-TcgaData <- LoadcBioportal(Organ="luad|gbm",
-                           Genes=CgcGenes,
-                           ClinicNeeded=T,
-                           MutNeeded=F,
-                           RNANeeded=T,
-                           NormalizeRNA=T,
-                           FunctionalAnnot=F)
-
-print(table(TcgaData$CLINIC$study))
-colorsStudy <- getColors(TcgaData$CLINIC$study, alpha=0.7)
-```
-
 Observe that you didn't load mutation data because of the argument `MutNeeded = F` so the dimensions of the `TcgaData$MUT` is [0,0].
 The function has selected and sorted the patients so that you have a `TcgaData$EXP` and `TcgaData$CLINIC` with the same patients as rows and no NAs.
 
@@ -355,16 +339,6 @@ regression model on the expression data to predict the study membership of RNA s
 # YOUR WORK HERE
 ```
 
-```{r}
-fit <- glmnet(
-  x=as.matrix(TcgaData$EXP[trainIndex,]),
-  y=as.factor(TcgaData$CLINIC$study[trainIndex]),
-  family="binomial",
-  alpha=0,
-  lambda=0,
-)
-```
-
 4) How do you evaluate a classification model? Give at least two metrics you think of to describe the quality of the
 model.
 
@@ -379,37 +353,6 @@ matrix](https://en.wikipedia.org/wiki/Confusion_matrix) and the metrics you ment
 # YOUR WORK HERE
 ```
 
-```{r}
-getConfusionMatrix <- function(labelsPredicted, labelsCorrect, labels=NULL){
-  if (is.null(labels)){
-    labels <- unique(union(labelsPredicted, labelsCorrect))
-  } else {
-    labels <- unique(labels)
-  }
-  confMat <- data.frame(row.names=labels)
-
-  for (labelPredicted in labels){
-    for (labelCorrect in labels){
-      confMat[labelPredicted, labelCorrect] <- sum(labelsPredicted==labelPredicted & labelsCorrect==labelCorrect)
-    }
-  }
-
-  confMat
-}
-```
-
-```{r}
-studyPredictedTrain <- predict(fit, newx=as.matrix(TcgaData$EXP[trainIndex,]), type="class")
-studyPredictedTest <- predict(fit, newx=as.matrix(TcgaData$EXP[testIndex,]), type="class")
-
-confMatTrain <- getConfusionMatrix(studyPredictedTrain, TcgaData$CLINIC$study[trainIndex])
-confMatTest <- getConfusionMatrix(studyPredictedTest, TcgaData$CLINIC$study[testIndex])
-
-ktrain <- kable(confMatTrain, caption="Train")
-ktest <- kable(confMatTest, caption="Test")
-kables(list(ktrain, ktest), format="html", caption="Confusion matrices")
-```
-
 ### Interpret the model.
 
 The medical doctor you are working is happy to see that you can accurately classify RNA samples according to their
@@ -422,39 +365,6 @@ discriminative for GBM).
 
 ```{r}
 #### YOUR WORK HERE
-```
-
-```{r}
-fitCoefs <- as.matrix(coefficients(fit))
-fitCoefs <- fitCoefs[!grepl("(Intercept)", rownames(fitCoefs)),,drop=F]
-
-LuadGenes <- fitCoefs[fitCoefs > 0,,drop=F]
-LuadGenes <- LuadGenes[order(LuadGenes, decreasing=T),,drop=F]
-
-GbmGenes <- fitCoefs[fitCoefs < 0,,drop=F]
-GbmGenes <- GbmGenes[order(GbmGenes, decreasing=F),,drop=F]
-```
-
-```{r, fig.width=8, fig.height=4, fig.cap="Top genes from Logistic regression", fig.align="center"}
-nGenesPlot <- 20
-xx <- barplot(height=c(LuadGenes[1:nGenesPlot], GbmGenes[1:nGenesPlot]),
-              col=c(rep(colorsStudy[["luad"]], nGenesPlot), rep(colorsStudy[["gbm"]], nGenesPlot)),
-              cex.names=0.7,
-              las=2)
-
-text(xx[1:nGenesPlot]+1, 
-     y=-1,
-     label=rownames(LuadGenes)[1:nGenesPlot],
-     pos=2,
-     cex=0.7,
-     srt=90)
-
-text(xx[(nGenesPlot+1):(2*nGenesPlot)]-0.75,
-     y=1,
-     label=rownames(GbmGenes)[1:nGenesPlot],
-     pos=4,
-     cex=0.7,
-     srt=90)
 ```
 
 5) For the top most discriminative gene in favor of LUAD and the top most discriminative gene in favor of GBM, give the
@@ -491,19 +401,6 @@ cross-validation is here to help us find an optimal value of $\lambda$.
 #### YOUR WORK HERE
 ```
 
-```{r}
-fitCv <- cv.glmnet(
-  x=as.matrix(TcgaData$EXP[trainIndex,]),
-  y=as.factor(TcgaData$CLINIC$study[trainIndex]),
-  family="binomial",
-  alpha=1,
-  nfolds=10
-)
-plot(fitCv)
-print(paste("You best value of lambda is :", fitCv$lambda.min))
-```
-
-
 8) Do you think this model needs important regularization to generalize well, and why (max 2 reasons)?
 
 **ANSWER**
@@ -517,62 +414,6 @@ again the values of the coefficients of the top 20 most discriminative genes for
 #### YOUR WORK HERE
 ```
 
-
-```{r}
-# logistic regression fit
-fitReduced <-glmnet(
-  x=as.matrix(TcgaData$EXP[trainIndex,]),
-  y=as.factor(TcgaData$CLINIC$study[trainIndex]),
-  family="binomial",
-  alpha=1,
-  lambda=fitCv$lambda.min
-)
-```
-
-```{r}
-fitCoefs <- as.matrix(coefficients(fitReduced))
-fitCoefs <- fitCoefs[!grepl("(Intercept)", rownames(fitCoefs)),,drop=F]
-
-LuadGenes <- fitCoefs[fitCoefs > 0,,drop=F]
-LuadGenes <- LuadGenes[order(LuadGenes, decreasing=T),,drop=F]
-
-GbmGenes <- fitCoefs[fitCoefs < 0,,drop=F]
-GbmGenes <- GbmGenes[order(GbmGenes, decreasing=F),,drop=F]
-```
-
-```{r, fig.width=8, fig.height=4, fig.cap="Top genes from Reduced Logistic regression", fig.align="center"}
-nGenesPlot <- 20
-xx <- barplot(height=c(LuadGenes[1:nGenesPlot], GbmGenes[1:nGenesPlot]),
-              col=c(rep(colorsStudy[["luad"]], nGenesPlot), rep(colorsStudy[["gbm"]], nGenesPlot)),
-              cex.names=0.7,
-              las=2)
-
-text(xx[1:nGenesPlot]+1, 
-     y=-0.1,
-     label=rownames(LuadGenes)[1:nGenesPlot],
-     pos=2,
-     cex=0.7,
-     srt=90)
-
-text(xx[(nGenesPlot+1):(2*nGenesPlot)]-0.75,
-     y=0.1,
-     label=rownames(GbmGenes)[1:nGenesPlot],
-     pos=4,
-     cex=0.7,
-     srt=90)
-```
-
-```{r}
-studyPredictedTrain <- predict(fitReduced, newx=as.matrix(TcgaData$EXP[trainIndex,]), type="class")
-studyPredictedTest <- predict(fitReduced, newx=as.matrix(TcgaData$EXP[testIndex,]), type="class")
-
-confMatTrain <- getConfusionMatrix(studyPredictedTrain, TcgaData$CLINIC$study[trainIndex])
-confMatTest <- getConfusionMatrix(studyPredictedTest, TcgaData$CLINIC$study[testIndex])
-
-ktrain <- kable(confMatTrain, caption="Train")
-ktest <- kable(confMatTest, caption="Test")
-kables(list(ktrain, ktest), format="html", caption="Confusion matrices")
-```
 
 10) Has Lasso regularization changed the accuracy of your model? Are you surprised?
 
