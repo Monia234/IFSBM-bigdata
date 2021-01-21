@@ -14,7 +14,6 @@ __pycache__
 *.tool-versions
 
 # solutions
-*Solution.Rmd
 
 # Ignore these files
 *.swp

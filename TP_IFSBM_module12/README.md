@@ -29,7 +29,7 @@ packages. Si vous n'avez pas déjà `R`, veuillez installer la dernière version
 ou
 
 > `cd [...]/ISFBM-bigdata/TP_IFSBM_module12`
-3. Depuis la console `R`, lancez la commande  `renv::restore()`.
+3. Depuis la console `R`, lancez la commande  `renv::restore()`. 
 
 ## Utilisation des notebooks R
 

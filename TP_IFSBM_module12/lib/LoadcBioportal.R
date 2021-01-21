@@ -10,7 +10,7 @@
 #' than one study.
 #' @param NormalizeRNA Set to TRUE to perform the normalization log((x-min(X))/(max(X)-min(X))+1) with X the vector of
 #' expression profiles of gene x for all patients.
-#' @param Tests Set to TRUE to run the test functoion of `cgdsr`.
+#' @param Tests Set to TRUE to run the test function of `cgdsr`.
 LoadcBioportal<-function(
                          Genes=c("TP53","KRAS"),
                          ClinicNeeded=T,
