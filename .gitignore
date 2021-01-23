@@ -13,7 +13,9 @@ __pycache__
 # asdf
 *.tool-versions
 
-# solutions
+# Course sources
+lecture_1_source
+lecture_2_source
 
 # Ignore these files
 *.swp
