@@ -1,11 +1,10 @@
 # IFSBM-bigdata
 
-**Dates 2021** 18-22 janvier 2021.
+**Dates 2021** 17-21 janvier 2022.
 
 **Lieu** En ligne
 
-**Responsables** Daniel GAUTHERET (Pr, Gustave Roussy), Gaelle LELANDAIS (Pr, I2BC), Loic VERLINGUE (Médecin
-& Doctorant, GustaveRoussy).
+**Responsables** Pr. Daniel GAUTHERET (Univ. Paris-Saclay, I2BC), Dr. Stéphane CHAMPIAT (Gustave Roussy), Dr Julien VIBERT (Gustave Roussy)
 
 **Intervenants** Bastien JOB (Ingénieur Bioinformaticien, GustaveRoussy), Yoann PRADAT (Doctorant, CentraleSupelec),
 
@@ -22,19 +21,19 @@ données produites par les NGS et des applications de ces données.
 
 ### Programme
 
-|  Heure  | Lundi 18 janvier 2021 |
+|  Heure  | Lundi 17 janvier 2022 |
 | ----------- | :-----------------------------------------------: |
 | 09:00-10:30 |  Technologies et données omiques en cancérologie. |
 | 10:45-12:15 | Analyse altérations du nombres de copies et NGS. |
 | 13:30-17:00 | TP Galaxy: Cas d'étude RNA-seq. |
 
-|  Heure  | Mardi 19 janvier 2021 |
+|  Heure  | Mardi 18 janvier 2022 |
 | ----------- | :-----------------------------------------------: |
 | 09:00-12:30 | TP Galaxy II: Cas d'étude RNA-seq.|
 | 13:30-15:00 | Problèmatique et applications de la détection de variant somatiques par WES. |
 | 15:15-16:45 | Analyse d'expression single-cell. |
 
-|  Heure  | Mercredi 20 janvier 2021 |
+|  Heure  | Mercredi 19 janvier 2022 |
 | ----------- | :-----------------------------------------------: |
 | 09:00-12:30 | TP Galaxy III: Analyse exome et visualisation avec IGV.|
 
@@ -60,19 +59,19 @@ et verrez des applications de ces méthodes sur des données publiques.
 
 ### Programme
 
-|  Heure  | Mercredi 20 janvier 2021 |
+|  Heure  | Mercredi 19 janvier 2022 |
 | ----------- | :-----------------------------------------------: |
 | 13:30-17:00 | Premiers pas avec le langage R.|
 
 
-|  Heure  | Jeudi 21 janvier 2021 |
+|  Heure  | Jeudi 20 janvier 2022 |
 | ----------- | :-----------------------------------------------: |
 | 09:00-10:15 | Pourquoi utiliser les méthodes d'apprentissage auomatique en oncologie ? |
 | 10:30-11:30 | Introduction méthodes d'apprentissage. |
 | 11:30-12:00 | Example of research projects. |
 | 13:30-17:00 | TP I: Apprentissage statistique sur des données d'expression du TCGA. |
 
-|  Heure  | Vendredi 22 janvier 2021 |
+|  Heure  | Vendredi 21 janvier 2022 |
 | ----------- | :-----------------------------------------------: |
 | 09:00-10:15 | Applications du deep learning en oncologie. |
 | 10:30-11:30 | Introduction méthodes Deep Learning. |
