@@ -2,7 +2,7 @@
 
 **Dates 2021** 17-21 janvier 2022.
 
-**Lieu** En ligne
+**Lieu** UE 11: en ligne, UE 12: Bat B2M, Gustave Roussy
 
 **Responsables** Pr. Daniel GAUTHERET (Univ. Paris-Saclay, I2BC), Dr. Stéphane CHAMPIAT (Gustave Roussy), Dr Julien VIBERT (Gustave Roussy)
 
