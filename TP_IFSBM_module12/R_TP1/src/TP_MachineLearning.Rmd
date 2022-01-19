@@ -2,8 +2,8 @@
 title: "TP I FSBM UE 12: Big Data and predictive models"
 subtitle: "Introduction to machine learning."
 author:
-  - Loic Verlingue, Md, PhDc loic.verlingue@gustaveroussy.fr
   - Yoann Pradat, PhDc yoann.pradat@centralesupelec.fr
+  - Julien Vibert, Md, PhDc Julien.vibert@gustaveroussy.fr
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 bibliography: references.bib
 link-citations: true
